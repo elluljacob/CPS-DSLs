@@ -1,0 +1,25 @@
+# Eclipse Project Files
+.metadata/
+.pdebuild.properties
+.settings/
+.project
+.classpath
+
+# Generated Code/Binaries
+bin/
+target/
+xtend-gen/
+src-gen/
+
+# DSL Meta-level Project specifics (Replace GoL.MyLanguage with your actual package prefix)
+# These are often generated files and can be rebuilt
+org.gol.mylanguage.ui/
+org.gol.mylanguage.tests/
+org.gol.mylanguage.ide/
+
+# Java/Eclipse specific
+*.jar
+*.war
+*.class
+# Log files
+*.log
