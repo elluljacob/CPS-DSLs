@@ -3,7 +3,44 @@ grammar goL.tasks.TaskDSL with org.eclipse.xtext.common.Terminals
 generate taskDSL "http://www.tasks.goL/TaskDSL"
 
 Model:
-	greetings+=Greeting*;
-	
-Greeting:
-	'Hello' name=ID '!';
+    'Experiment' name=ID ':'
+    grid = Grid
+    rules = Rules;
+
+// -----------------------------------------------------------------------------
+// GRID DEFINITION
+// -----------------------------------------------------------------------------
+Grid:
+    'Grid' ':'
+    'Size' sizeX=INT 'x' sizeY=INT
+    'InitialState' ':'
+    cells += LiveCell*;
+
+LiveCell:
+    '(' x=INT ',' y=INT ')';
+
+// -----------------------------------------------------------------------------
+// RULES DEFINITION
+// -----------------------------------------------------------------------------
+Rules:
+    'Rules' ':'
+    birthRules += BirthRule+
+    survivalRules += SurvivalRule+
+    deathRules += DeathRule+;
+
+// NOTE: Rule definitions are explicit to avoid parser confusion.
+
+// A dead cell becomes alive (birth)
+BirthRule:
+    'Birth' 'Neighbors' (operator=Operator count=INT);
+
+SurvivalRule:
+    'Survival' 'Neighbors' (operator=Operator count=INT);
+
+DeathRule:
+    'Death' 'Neighbors' (operator=Operator count=INT);
+
+
+// Defines the operators for comparison: <, =, >
+enum Operator:
+    LESS_THAN = '<' | EQUAL = '=' | GREATER_THAN = '>';
