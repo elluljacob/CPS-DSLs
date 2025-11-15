@@ -19,8 +19,9 @@
     <genClasses ecoreClass="TaskDSL.ecore#//Grid">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//Grid/sizeX"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//Grid/sizeY"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Grid/cells"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Grid/stateOption"/>
     </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//InitialStateOption"/>
     <genClasses ecoreClass="TaskDSL.ecore#//LiveCell">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//LiveCell/x"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//LiveCell/y"/>
@@ -41,6 +42,12 @@
     <genClasses ecoreClass="TaskDSL.ecore#//DeathRule">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//DeathRule/operator"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//DeathRule/count"/>
+    </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//StaticState">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//StaticState/cells"/>
+    </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//RandomState">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//RandomState/percentage"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

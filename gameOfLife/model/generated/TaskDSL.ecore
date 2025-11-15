@@ -10,9 +10,10 @@
   <eClassifiers xsi:type="ecore:EClass" name="Grid">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="sizeX" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="sizeY" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="cells" upperBound="-1"
-        eType="#//LiveCell" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="stateOption" eType="#//InitialStateOption"
+        containment="true"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="InitialStateOption"/>
   <eClassifiers xsi:type="ecore:EClass" name="LiveCell">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="x" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="y" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
@@ -41,5 +42,12 @@
     <eLiterals name="LESS_THAN" literal="&lt;"/>
     <eLiterals name="EQUAL" value="1" literal="="/>
     <eLiterals name="GREATER_THAN" value="2" literal=">"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="StaticState" eSuperTypes="#//InitialStateOption">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="cells" upperBound="-1"
+        eType="#//LiveCell" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RandomState" eSuperTypes="#//InitialStateOption">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="percentage" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
   </eClassifiers>
 </ecore:EPackage>

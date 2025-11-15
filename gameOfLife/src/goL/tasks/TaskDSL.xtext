@@ -14,7 +14,14 @@ Grid:
     'Grid' ':'
     'Size' sizeX=INT 'x' sizeY=INT
     'InitialState' ':'
-    cells += LiveCell*;
+	stateOption = InitialStateOption;
+	
+InitialStateOption:
+    (
+        {StaticState} 'Static' cells += LiveCell* // Option 1: Static list of LiveCells
+    ) | (
+        {RandomState} 'Random' percentage=INT '%' // Option 2: Random fill percentage
+    );
 
 LiveCell:
     '(' x=INT ',' y=INT ')';

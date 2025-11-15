@@ -14,6 +14,9 @@ import goL.tasks.taskDSL.Operator
 import goL.tasks.taskDSL.BirthRule
 import goL.tasks.taskDSL.SurvivalRule
 import goL.tasks.taskDSL.DeathRule
+import goL.tasks.taskDSL.InitialStateOption
+import goL.tasks.taskDSL.RandomState
+import goL.tasks.taskDSL.StaticState 
 
 /**
  * Generates the RulesOfLife.java file based on the Game of Life DSL model.
@@ -134,9 +137,34 @@ class TaskDSLGenerator extends AbstractGenerator {
 	 * Generates the Java code for initializing the live cells in the static block.
 	 */
 	def toInitialCellSetup(Grid grid) '''
-		«FOR cell : grid.cells»
-		INITIAL_GRID[«cell.x»][«cell.y»] = true;
-		«ENDFOR»
+		«IF grid.stateOption instanceof RandomState»
+			«val randomState = grid.stateOption as RandomState»
+			«val percentage = randomState.percentage»
+			
+			// Use Java's Random to fill the board with the specified percentage (percentage»%)
+			java.util.Random random = new java.util.Random();
+			int totalCells = GRID_WIDTH * GRID_HEIGHT;
+			int cellsToFill = (int) Math.round(totalCells * («percentage» / 100.0));
+			int filledCount = 0;
+
+			// Loop until the desired number of cells is filled
+			while (filledCount < cellsToFill) {
+				int x = random.nextInt(GRID_WIDTH);
+				int y = random.nextInt(GRID_HEIGHT);
+				
+				// Only set if the cell was previously dead
+				if (!INITIAL_GRID[x][y]) {
+					INITIAL_GRID[x][y] = true;
+					filledCount++;
+				}
+			}
+		«ELSE»
+			// Static Fill
+			«val staticState = grid.stateOption as StaticState»
+			«FOR cell : staticState.cells»
+			INITIAL_GRID[«cell.x»][«cell.y»] = true;
+			«ENDFOR»
+		«ENDIF»
 	'''
 	
 	/**
