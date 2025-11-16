@@ -14,6 +14,19 @@
         containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="InitialStateOption"/>
+  <eClassifiers xsi:type="ecore:EClass" name="FillCondition">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="LHS" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="op" eType="#//ComparisonOperator"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="RHS" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="ComparisonOperator">
+    <eLiterals name="EQUAL" literal="=="/>
+    <eLiterals name="NOT_EQUAL" value="1" literal="!="/>
+    <eLiterals name="LESS_THAN" value="2" literal="&lt;"/>
+    <eLiterals name="GREATER_THAN" value="3" literal=">"/>
+    <eLiterals name="LESS_EQUAL" value="4" literal="&lt;="/>
+    <eLiterals name="GREATER_EQUAL" value="5" literal=">="/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="LiveCell">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="x" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="y" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
@@ -49,5 +62,9 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RandomState" eSuperTypes="#//InitialStateOption">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="percentage" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CustomState" eSuperTypes="#//InitialStateOption">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="condition" eType="#//FillCondition"
+        containment="true"/>
   </eClassifiers>
 </ecore:EPackage>

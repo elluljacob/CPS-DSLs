@@ -6,6 +6,14 @@
     copyrightFields="false" runtimeVersion="2.20">
   <genPackages prefix="TaskDSL" basePackage="goL.tasks" disposableProviderFactory="true"
       fileExtensions="tdsl" ecorePackage="TaskDSL.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="TaskDSL.ecore#//ComparisonOperator">
+      <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//ComparisonOperator/EQUAL"/>
+      <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//ComparisonOperator/NOT_EQUAL"/>
+      <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//ComparisonOperator/LESS_THAN"/>
+      <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//ComparisonOperator/GREATER_THAN"/>
+      <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//ComparisonOperator/LESS_EQUAL"/>
+      <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//ComparisonOperator/GREATER_EQUAL"/>
+    </genEnums>
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="TaskDSL.ecore#//Operator">
       <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//Operator/LESS_THAN"/>
       <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//Operator/EQUAL"/>
@@ -22,6 +30,11 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Grid/stateOption"/>
     </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//InitialStateOption"/>
+    <genClasses ecoreClass="TaskDSL.ecore#//FillCondition">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//FillCondition/LHS"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//FillCondition/op"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//FillCondition/RHS"/>
+    </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//LiveCell">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//LiveCell/x"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//LiveCell/y"/>
@@ -48,6 +61,9 @@
     </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//RandomState">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//RandomState/percentage"/>
+    </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//CustomState">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//CustomState/condition"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>
