@@ -6,14 +6,6 @@
     copyrightFields="false" runtimeVersion="2.20">
   <genPackages prefix="TaskDSL" basePackage="goL.tasks" disposableProviderFactory="true"
       fileExtensions="tdsl" ecorePackage="TaskDSL.ecore#/">
-    <genEnums typeSafeEnumCompatible="false" ecoreEnum="TaskDSL.ecore#//ComparisonOperator">
-      <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//ComparisonOperator/EQUAL"/>
-      <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//ComparisonOperator/NOT_EQUAL"/>
-      <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//ComparisonOperator/LESS_THAN"/>
-      <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//ComparisonOperator/GREATER_THAN"/>
-      <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//ComparisonOperator/LESS_EQUAL"/>
-      <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//ComparisonOperator/GREATER_EQUAL"/>
-    </genEnums>
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="TaskDSL.ecore#//Operator">
       <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//Operator/LESS_THAN"/>
       <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//Operator/EQUAL"/>
@@ -30,11 +22,6 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Grid/stateOption"/>
     </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//InitialStateOption"/>
-    <genClasses ecoreClass="TaskDSL.ecore#//FillCondition">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//FillCondition/LHS"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//FillCondition/op"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//FillCondition/RHS"/>
-    </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//LiveCell">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//LiveCell/x"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//LiveCell/y"/>
@@ -56,14 +43,44 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//DeathRule/operator"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//DeathRule/count"/>
     </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//Expr"/>
     <genClasses ecoreClass="TaskDSL.ecore#//StaticState">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//StaticState/cells"/>
     </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//RandomState">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//RandomState/percentage"/>
     </genClasses>
-    <genClasses ecoreClass="TaskDSL.ecore#//CustomState">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//CustomState/condition"/>
+    <genClasses ecoreClass="TaskDSL.ecore#//FunctionState">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//FunctionState/function"/>
+    </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//Add">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Add/left"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Add/right"/>
+    </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//Sub">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Sub/left"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Sub/right"/>
+    </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//Mul">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Mul/left"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Mul/right"/>
+    </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//Div">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Div/left"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Div/right"/>
+    </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//FunctionCall">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//FunctionCall/funcName"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//FunctionCall/argument"/>
+    </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//ParenExpr">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//ParenExpr/expr"/>
+    </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//NumberLiteral">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//NumberLiteral/value"/>
+    </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//VariableRef">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//VariableRef/varName"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

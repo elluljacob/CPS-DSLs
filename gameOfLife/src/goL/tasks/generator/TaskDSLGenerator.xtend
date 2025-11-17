@@ -18,6 +18,17 @@ import goL.tasks.taskDSL.InitialStateOption
 import goL.tasks.taskDSL.RandomState
 import goL.tasks.taskDSL.StaticState 
 
+import goL.tasks.taskDSL.Expr
+import goL.tasks.taskDSL.NumberLiteral
+import goL.tasks.taskDSL.VariableRef
+import goL.tasks.taskDSL.Add
+import goL.tasks.taskDSL.Sub
+import goL.tasks.taskDSL.Mul
+import goL.tasks.taskDSL.Div
+import goL.tasks.taskDSL.FunctionCall
+import goL.tasks.taskDSL.ParenExpr
+import goL.tasks.taskDSL.FunctionState
+
 /**
  * Generates the RulesOfLife.java file based on the Game of Life DSL model.
  */
@@ -32,6 +43,40 @@ class TaskDSLGenerator extends AbstractGenerator {
 		// It is important that this path reflects the package structure!
 		fsa.generateFile("GameOfLife/RulesOfLife.java", model.toJavaCode)
 	}
+	def String exprToJava(Expr expr) {
+	    if (expr instanceof NumberLiteral) {
+	        return (expr as NumberLiteral).value.toString
+	    } else if (expr instanceof VariableRef) {
+	        return (expr as VariableRef).varName
+	    } else if (expr instanceof Add) {
+	        return "(" + exprToJava((expr as Add).left) + " + " + exprToJava((expr as Add).right) + ")"
+	    } else if (expr instanceof Sub) {
+	        return "(" + exprToJava((expr as Sub).left) + " - " + exprToJava((expr as Sub).right) + ")"
+	    } else if (expr instanceof Mul) {
+	        return "(" + exprToJava((expr as Mul).left) + " * " + exprToJava((expr as Mul).right) + ")"
+	    } else if (expr instanceof Div) {
+	        return "(" + exprToJava((expr as Div).left) + " / " + exprToJava((expr as Div).right) + ")"
+	    } else if (expr instanceof FunctionCall) {
+	        val fc = expr as FunctionCall
+	        val argStr = exprToJava(fc.argument)
+	        switch fc.funcName {
+	            case "sin": return "Math.sin(" + argStr + ")"
+	            case "cos": return "Math.cos(" + argStr + ")"
+	            case "tan": return "Math.tan(" + argStr + ")"
+	            case "sqrt": return "Math.sqrt(" + argStr + ")"
+	            case "abs": return "Math.abs(" + argStr + ")"
+	            default: return fc.funcName + "(" + argStr + ")"
+	        }
+	    } else if (expr instanceof ParenExpr) {
+	        return "(" + exprToJava((expr as ParenExpr).expr) + ")"
+	    } else {
+	        throw new IllegalStateException("Unhandled expr type: " + typeof(Expr))
+	    }
+	}
+
+
+
+
 	
 	/**
 	 * Main dispatch method that generates the complete Java class.
@@ -133,6 +178,7 @@ class TaskDSLGenerator extends AbstractGenerator {
 		}
 	'''
 	
+	
 	/**
 	 * Generates the Java code for initializing the live cells in the static block.
 	 */
@@ -158,12 +204,23 @@ class TaskDSLGenerator extends AbstractGenerator {
 					filledCount++;
 				}
 			}
+		«ELSEIF grid.stateOption instanceof FunctionState»
+		  «val funcState = grid.stateOption as FunctionState»
+		  for (int c = 0; c < GRID_WIDTH; c++) {
+		      double raw = «exprToJava(funcState.function)»;
+		      // Use floor to avoid “jumping up” too much
+		      int r = (int) Math.floor(raw);
+		      if (r < 0) r = 0;
+		      if (r >= GRID_HEIGHT) r = GRID_HEIGHT - 1;
+		      INITIAL_GRID[c][r] = true;
+		  }
 		«ELSE»
 			// Static Fill
 			«val staticState = grid.stateOption as StaticState»
 			«FOR cell : staticState.cells»
 			INITIAL_GRID[«cell.x»][«cell.y»] = true;
 			«ENDFOR»
+			
 		«ENDIF»
 	'''
 	

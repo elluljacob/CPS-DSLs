@@ -9,6 +9,17 @@ import goL.tasks.taskDSL.SurvivalRule
 import goL.tasks.taskDSL.DeathRule
 import goL.tasks.taskDSL.Grid
 import goL.tasks.taskDSL.StaticState
+import goL.tasks.taskDSL.Grid
+import goL.tasks.taskDSL.FunctionState
+import goL.tasks.taskDSL.VariableRef
+import goL.tasks.taskDSL.Expr
+import goL.tasks.taskDSL.NumberLiteral
+import goL.tasks.taskDSL.Add
+import goL.tasks.taskDSL.Sub
+import goL.tasks.taskDSL.Mul
+import goL.tasks.taskDSL.Div
+import goL.tasks.taskDSL.FunctionCall
+import goL.tasks.taskDSL.ParenExpr
 
 /**
  * Custom validation rules for the Game of Life DSL.
@@ -225,4 +236,112 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 	        )
 	    }
 	}
+	// ---------------------------
+	//  Expression & identifier validation
+	// ---------------------------
+
+	public static val UNKNOWN_VARIABLE 	= 'unknown_variable'
+	public static val UNKNOWN_FUNCTION 	= 'unknown_function'
+	public static val VALID_VARIABLES 	= #["c","r","GRID_WIDTH","GRID_HEIGHT"]
+	public static val VALID_FUNCTIONS 	= #["sin","cos","tan","sqrt","abs"]
+	/**
+	 * Validate a VariableRef node: only allow c, r, GRID_WIDTH, GRID_HEIGHT.
+	 */
+	@Check
+	def checkVariableRef(VariableRef varRef) {
+	    val name = varRef.varName
+	    if (!VALID_VARIABLES.contains(name)) {
+	        error(
+	            "Unknown variable '" + name + "'. Allowed variables: " + VALID_VARIABLES.join(", "),
+	            varRef,
+	            TaskDSLPackage.Literals.VARIABLE_REF__VAR_NAME,
+	            UNKNOWN_VARIABLE
+	        )
+	    }
+	}
+	
+	/**
+	 * Validate a FunctionCall node: only allow sin, cos, tan, sqrt, abs.
+	 */
+	@Check
+	def checkFunctionCall(FunctionCall fc) {
+	    val fname = fc.funcName
+	    if (!VALID_FUNCTIONS.contains(fname)) {
+	        error(
+	            "Unknown function '" + fname + "'. Allowed functions: " + VALID_FUNCTIONS.join(", "),
+	            fc,
+	            TaskDSLPackage.Literals.FUNCTION_CALL__FUNC_NAME,
+	            UNKNOWN_FUNCTION
+	        )
+	    }
+	}
+	
+	/**
+	 * Helper that converts expressions to Java strings — used by other code.
+	 * It also enforces the same identifier/function restrictions (safe-guard).
+	 * If an unknown identifier/function is found it throws IllegalArgumentException.
+	 */
+	def String exprToJava(Expr expr) {
+	
+	    // ----- Literals -----
+	    if (expr instanceof NumberLiteral) {
+	        return (expr as NumberLiteral).value.toString
+	
+	    // ----- Variables (c, r, GRID_WIDTH, GRID_HEIGHT) -----
+	    } else if (expr instanceof VariableRef) {
+	        val v = (expr as VariableRef).varName
+	        if (VALID_VARIABLES.contains(v)) {
+	            return v
+	        } else {
+	            // prefer a clear message so callers can map to validation error
+	            throw new IllegalArgumentException("Unknown identifier: " + v + ". Allowed: " + VALID_VARIABLES.join(", "))
+	        }
+	
+	    // ----- Binary operations -----
+	    } else if (expr instanceof Add) {
+	        val e = expr as Add
+	        return "(" + exprToJava(e.left) + " + " + exprToJava(e.right) + ")"
+	
+	    } else if (expr instanceof Sub) {
+	        val e = expr as Sub
+	        return "(" + exprToJava(e.left) + " - " + exprToJava(e.right) + ")"
+	
+	    } else if (expr instanceof Mul) {
+	        val e = expr as Mul
+	        return "(" + exprToJava(e.left) + " * " + exprToJava(e.right) + ")"
+	
+	    } else if (expr instanceof Div) {
+	        val e = expr as Div
+	        return "(" + exprToJava(e.left) + " / " + exprToJava(e.right) + ")"
+	
+	    // ----- Function calls -----
+	    } else if (expr instanceof FunctionCall) {
+	        val fc = expr as FunctionCall
+	        val fname = fc.funcName
+	        val arg = exprToJava(fc.argument)
+	
+	        if (!VALID_FUNCTIONS.contains(fname)) {
+	            throw new IllegalArgumentException("Unknown function: " + fname + ". Allowed: " + VALID_FUNCTIONS.join(", "))
+	        }
+	
+	       switch (fname) {
+		    case "sin":  return "Math.sin("  + arg + ")"
+		    case "cos":  return "Math.cos("  + arg + ")"
+		    case "tan":  return "Math.tan("  + arg + ")"
+		    case "sqrt": return "Math.sqrt(" + arg + ")"
+		    case "abs":  return "Math.abs("  + arg + ")"
+		    default: throw new IllegalArgumentException(
+		        "Unknown function: " + fname + ". Allowed: " + VALID_FUNCTIONS.join(', ')
+		    )
+		}
+	    // ----- Parentheses -----
+	    } else if (expr instanceof ParenExpr) {
+	        return "(" + exprToJava((expr as ParenExpr).expr) + ")"
+	
+	    // ----- Fallback -----
+	    } else {
+	        throw new IllegalStateException("Unhandled expr type: " + expr.class.name)
+	    }
+	}
+	
 }

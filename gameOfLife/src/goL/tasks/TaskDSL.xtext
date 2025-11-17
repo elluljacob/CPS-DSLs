@@ -12,7 +12,10 @@ Model:
 // -----------------------------------------------------------------------------
 Grid:
     'Grid' ':'
-    'Size' sizeX=INT 'x' sizeY=INT
+    'Size' 
+    	sizeX=INT 
+    	'x' 
+    	sizeY=INT
     'InitialState' ':'
 	stateOption = InitialStateOption;
 	
@@ -21,6 +24,8 @@ InitialStateOption:
         {StaticState} 'Static' cells += LiveCell* // Option 1: Static list of LiveCells
     ) | (
         {RandomState} 'Random' percentage=INT '%' // Option 2: Random fill percentage
+    ) | (
+    	{FunctionState} 'Function' function=Expr
     );
 
 LiveCell:
@@ -31,23 +36,73 @@ LiveCell:
 // -----------------------------------------------------------------------------
 Rules:
     'Rules' ':'
-    birthRules += BirthRule+
-    survivalRules += SurvivalRule+
-    deathRules += DeathRule+;
+    birthRules 		+= BirthRule+
+    survivalRules 	+= SurvivalRule+
+    deathRules 		+= DeathRule+;
 
 // NOTE: Rule definitions are explicit to avoid parser confusion.
 
 // A dead cell becomes alive (birth)
 BirthRule:
-    'Birth' 'Neighbors' (operator=Operator count=INT);
+    'Birth' 	'Neighbors' (operator=Operator count=INT);
 
 SurvivalRule:
-    'Survival' 'Neighbors' (operator=Operator count=INT);
+    'Survival' 	'Neighbors' (operator=Operator count=INT);
 
 DeathRule:
-    'Death' 'Neighbors' (operator=Operator count=INT);
+    'Death' 	'Neighbors' (operator=Operator count=INT);
+
+
 
 
 // Defines the operators for comparison: <, =, >
 enum Operator:
     LESS_THAN = '<' | EQUAL = '=' | GREATER_THAN = '>';
+
+
+// -----------------------------------------------------------------------------
+// EXPRESSIONS
+// References:
+// https://medium.com/typefox/parsing-expressions-with-xtext-86fb5855d420
+// https://eclipse.dev/Xtext/documentation/307_special_languages.html
+// -----------------------------------------------------------------------------
+Expr returns Expr:
+    AdditionExpr
+;
+
+AdditionExpr returns Expr:
+    MultiplicationExpr (({Add.left=current} '+' right=MultiplicationExpr)
+                      | ({Sub.left=current} '-' right=MultiplicationExpr))*
+;
+
+MultiplicationExpr returns Expr:
+    PrimaryExpr (({Mul.left=current} '*' right=PrimaryExpr)
+                | ({Div.left=current} '/' right=PrimaryExpr))*
+;
+
+PrimaryExpr returns Expr:
+      NumberLiteral
+    | VariableRef
+    | FunctionCall
+    | ParenExpr
+;
+
+FunctionCall returns Expr:
+    {FunctionCall} funcName=ID '(' argument=Expr ')'
+;
+
+ParenExpr returns Expr:
+    {ParenExpr} '(' expr=Expr ')'
+;
+
+NumberLiteral returns Expr:
+    {NumberLiteral} value=INT
+;
+
+VariableRef returns Expr:
+    {VariableRef} varName=ID
+;
+
+
+
+
