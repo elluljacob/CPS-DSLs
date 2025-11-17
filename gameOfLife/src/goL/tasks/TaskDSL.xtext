@@ -4,6 +4,7 @@ generate taskDSL "http://www.tasks.goL/TaskDSL"
 
 Model:
     'Experiment' name=ID ':'
+    functions += FunctionDef*
     grid = Grid
     rules = Rules;
 
@@ -25,7 +26,7 @@ InitialStateOption:
     ) | (
         {RandomState} 'Random' percentage=INT '%' // Option 2: Random fill percentage
     ) | (
-    	{FunctionState} 'Function' function=Expr
+    	{ProgramState} 'Program' program=Expr
     );
 
 LiveCell:
@@ -66,19 +67,82 @@ enum Operator:
 // https://medium.com/typefox/parsing-expressions-with-xtext-86fb5855d420
 // https://eclipse.dev/Xtext/documentation/307_special_languages.html
 // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// EXPRESSIONS
+// -----------------------------------------------------------------------------
+FunctionDef:
+    'Function' name=ID '(' params+=ID (',' params+=ID)* ')' ':'
+          '{' statements+=Statement+ '}'
+;
+
+
+Statement:
+      VarDecl
+    | Assignment
+    | IfStatement
+    | WhileLoop
+    | ReturnStmt
+;
+
+VarDecl:
+    'let' name=ID '=' expr=Expr
+;
+
+Assignment:
+    name=ID '=' expr=Expr
+;
+
+IfStatement:
+    'if' '(' condition=Expr ')' ':'
+        '{' thenStatements+=Statement+ '}'
+;
+
+
+WhileLoop:
+    'while' '(' condition=Expr ')' ':'
+        '{' statements+=Statement+ '}'
+;
+
+ReturnStmt:
+    'return' expr=Expr
+;
+
 Expr returns Expr:
-    AdditionExpr
+    OrExpr
 ;
 
-AdditionExpr returns Expr:
-    MultiplicationExpr (({Add.left=current} '+' right=MultiplicationExpr)
-                      | ({Sub.left=current} '-' right=MultiplicationExpr))*
+OrExpr returns Expr:
+    AndExpr ({Or.left=current} '||' right=AndExpr)*
 ;
 
-MultiplicationExpr returns Expr:
+AndExpr returns Expr:
+    EqualityExpr ({And.left=current} '&&' right=EqualityExpr)*
+;
+
+EqualityExpr returns Expr:
+    RelationalExpr (({Eq.left=current} '==' right=RelationalExpr)
+                  | ({Neq.left=current} '!=' right=RelationalExpr))*
+;
+
+RelationalExpr returns Expr:
+    AddExpr (({Lt.left=current} '<' right=AddExpr)
+           | ({Lte.left=current} '<=' right=AddExpr)
+           | ({Gt.left=current} '>' right=AddExpr)
+           | ({Gte.left=current} '>=' right=AddExpr))*
+;
+
+AddExpr returns Expr:
+    MulExpr (({Add.left=current} '+' right=MulExpr)
+           | ({Sub.left=current} '-' right=MulExpr))*
+;
+
+
+MulExpr returns Expr:
     PrimaryExpr (({Mul.left=current} '*' right=PrimaryExpr)
-                | ({Div.left=current} '/' right=PrimaryExpr))*
+               | ({Div.left=current} '/' right=PrimaryExpr)
+               | ({Mod.left=current} '%' right=PrimaryExpr))*
 ;
+
 
 PrimaryExpr returns Expr:
       NumberLiteral
@@ -88,7 +152,7 @@ PrimaryExpr returns Expr:
 ;
 
 FunctionCall returns Expr:
-    {FunctionCall} funcName=ID '(' argument=Expr ')'
+    {FunctionCall} funcName=ID '(' (args+=Expr (',' args+=Expr)*)? ')'
 ;
 
 ParenExpr returns Expr:
@@ -102,7 +166,4 @@ NumberLiteral returns Expr:
 VariableRef returns Expr:
     {VariableRef} varName=ID
 ;
-
-
-
 

@@ -7,27 +7,8 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
-import goL.tasks.taskDSL.Model
-import goL.tasks.taskDSL.Grid
-import goL.tasks.taskDSL.LiveCell
-import goL.tasks.taskDSL.Operator
-import goL.tasks.taskDSL.BirthRule
-import goL.tasks.taskDSL.SurvivalRule
-import goL.tasks.taskDSL.DeathRule
-import goL.tasks.taskDSL.InitialStateOption
-import goL.tasks.taskDSL.RandomState
-import goL.tasks.taskDSL.StaticState 
-
-import goL.tasks.taskDSL.Expr
-import goL.tasks.taskDSL.NumberLiteral
-import goL.tasks.taskDSL.VariableRef
-import goL.tasks.taskDSL.Add
-import goL.tasks.taskDSL.Sub
-import goL.tasks.taskDSL.Mul
-import goL.tasks.taskDSL.Div
-import goL.tasks.taskDSL.FunctionCall
+import goL.tasks.taskDSL.*
 import goL.tasks.taskDSL.ParenExpr
-import goL.tasks.taskDSL.FunctionState
 
 /**
  * Generates the RulesOfLife.java file based on the Game of Life DSL model.
@@ -43,39 +24,155 @@ class TaskDSLGenerator extends AbstractGenerator {
 		// It is important that this path reflects the package structure!
 		fsa.generateFile("GameOfLife/RulesOfLife.java", model.toJavaCode)
 	}
-	def String exprToJava(Expr expr) {
-	    if (expr instanceof NumberLiteral) {
-	        return (expr as NumberLiteral).value.toString
-	    } else if (expr instanceof VariableRef) {
-	        return (expr as VariableRef).varName
-	    } else if (expr instanceof Add) {
-	        return "(" + exprToJava((expr as Add).left) + " + " + exprToJava((expr as Add).right) + ")"
-	    } else if (expr instanceof Sub) {
-	        return "(" + exprToJava((expr as Sub).left) + " - " + exprToJava((expr as Sub).right) + ")"
-	    } else if (expr instanceof Mul) {
-	        return "(" + exprToJava((expr as Mul).left) + " * " + exprToJava((expr as Mul).right) + ")"
-	    } else if (expr instanceof Div) {
-	        return "(" + exprToJava((expr as Div).left) + " / " + exprToJava((expr as Div).right) + ")"
-	    } else if (expr instanceof FunctionCall) {
-	        val fc = expr as FunctionCall
-	        val argStr = exprToJava(fc.argument)
-	        switch fc.funcName {
-	            case "sin": return "Math.sin(" + argStr + ")"
-	            case "cos": return "Math.cos(" + argStr + ")"
-	            case "tan": return "Math.tan(" + argStr + ")"
-	            case "sqrt": return "Math.sqrt(" + argStr + ")"
-	            case "abs": return "Math.abs(" + argStr + ")"
-	            default: return fc.funcName + "(" + argStr + ")"
-	        }
-	    } else if (expr instanceof ParenExpr) {
-	        return "(" + exprToJava((expr as ParenExpr).expr) + ")"
-	    } else {
-	        throw new IllegalStateException("Unhandled expr type: " + typeof(Expr))
-	    }
+
+	// Dispatch method for the base type Expr
+	def String toJavaCode(Expr expr) {
+	    throw new IllegalStateException("Unhandled AST node: " + expr.eClass.name)
 	}
 
+	// --- Literal and Variable References ---
+	def String toJavaCode(NumberLiteral it) {
+	    value.toString
+	}
+	
+	def String toJavaCode(VariableRef it) {
+	    varName
+	}
+	
+	def String toJavaCode(ParenExpr it) {
+	    '(' + expr.toJavaCode + ')'
+	}
+	
+	// --- Arithmetic Operations ---
+	def String toJavaCode(Add it) {
+	    '(' + left.toJavaCode + ' + ' + right.toJavaCode + ')'
+	}
+	
+	def String toJavaCode(Sub it) {
+	    '(' + left.toJavaCode + ' - ' + right.toJavaCode + ')'
+	}
+	
+	def String toJavaCode(Mul it) {
+	    '(' + left.toJavaCode + ' * ' + right.toJavaCode + ')'
+	}
 
-
+	def String toJavaCode(Div it) {
+	    '(' + left.toJavaCode + ' / ' + right.toJavaCode + ')'
+	}
+	
+	// Assuming you added {Mod.left=current} to your grammar's MulExpr rule:
+	def String toJavaCode(Mod it) {
+	    '(' + left.toJavaCode + ' % ' + right.toJavaCode + ')'
+	}
+	
+	// --- Relational and Equality Operations ---
+	def String toJavaCode(Eq it) {
+	    '(' + left.toJavaCode + ' == ' + right.toJavaCode + ')'
+	}
+	
+	def String toJavaCode(Neq it) {
+	    '(' + left.toJavaCode + ' != ' + right.toJavaCode + ')'
+	}
+	
+	def String toJavaCode(Lt it) {
+	    '(' + left.toJavaCode + ' < ' + right.toJavaCode + ')'
+	}
+	
+	def String toJavaCode(Lte it) {
+	    '(' + left.toJavaCode + ' <= ' + right.toJavaCode + ')'
+	}
+	
+	def String toJavaCode(Gt it) {
+	    '(' + left.toJavaCode + ' > ' + right.toJavaCode + ')'
+	}
+	
+	def String toJavaCode(Gte it) {
+	    '(' + left.toJavaCode + ' >= ' + right.toJavaCode + ')'
+	}
+	
+	// --- Logical Operations ---
+	def String toJavaCode(And it) {
+	    '(' + left.toJavaCode + ' && ' + right.toJavaCode + ')'
+	}
+	
+	def String toJavaCode(Or it) {
+	    '(' + left.toJavaCode + ' || ' + right.toJavaCode + ')'
+	}
+	
+	// --- Statement Dispatch (Base) ---
+	// This is the base dispatch method for statements, similar to the one for Expr.
+	def String toJavaCode(Statement statement) {
+		throw new IllegalStateException("Unhandled AST node: " + statement.eClass.name)
+	}
+	
+	// --- Statements ---
+	def String toJavaCode(VarDecl it) {
+	    // Generates: int varName = expr; (Assuming all DSL variables are integers in Java)
+	    '''int ''' + it.name + ''' = ''' + it.expr.toJavaCode + ''';'''
+	}
+	
+	def String toJavaCode(Assignment it) {
+	    // Generates: varName = expr;
+	    it.name + ''' = ''' + it.expr.toJavaCode + ''';'''
+	}
+	
+	def String toJavaCode(IfStatement it) {
+	    // Generates: if (condition) { thenStatements... }
+	    '''
+	        if (''' + it.condition.toJavaCode + ''') {
+	            ''' + it.thenStatements.map[toJavaCode].join('''
+	            ''') + '''
+	        }
+	    '''
+	    // Since you removed 'else', the optional else block is omitted here.
+	}
+	
+	def String toJavaCode(WhileLoop it) {
+	    // Generates: while (condition) { statements... }
+	    '''
+	        while (''' + it.condition.toJavaCode + ''') {
+	            ''' + it.statements.map[toJavaCode].join('''
+	            ''') + '''
+	        }
+	    '''
+	}
+	
+	def String toJavaCode(ReturnStmt it) {
+	    // Generates: return expr;
+	    '''return ''' + it.expr.toJavaCode + ''';'''
+	}
+	
+	// --- Function Definition ---
+	def String toJavaCode(FunctionDef it) {
+	    // Generates a public static function (assuming integer return type and parameters for simplicity)
+	    val paramStr = it.params.map["int " + it].join(", ")
+	    
+	    // We assume all user-defined functions are int-returning and public static
+	    '''
+	        public static int ''' + it.name + '''(''' + paramStr + ''') {
+	            ''' + it.statements.map[toJavaCode].join('''
+	            ''') + '''
+	        }
+	    '''
+	}
+	
+	// --- Function Call Fix (for Explicit access) ---
+	def String toJavaCode(FunctionCall it) {
+	 	// Apply the same 'it.' fix for accessing 'args' if you had the same undefined error there
+	    val argStr = it.args.map[toJavaCode].join(', ')
+	 	
+	 	// Convert built-in functions to Java's Math class, or treat as user-defined
+	    switch it.funcName {
+	 		case "sin": return "Math.sin(" + argStr + ")"
+	 		case "cos": return "Math.cos(" + argStr + ")"
+	 		case "tan": return "Math.tan(" + argStr + ")"
+	 		case "sqrt": return "Math.sqrt(" + argStr + ")"
+	 		case "abs": return "Math.abs(" + argStr + ")"
+	 		case "floor": return "Math.floor(" + argStr + ")"
+	 		case "ceil": return "Math.ceil(" + argStr + ")"
+	 		default: return it.funcName + "(" + argStr + ")"
+	 	}
+	 }
 
 	
 	/**
@@ -187,38 +284,41 @@ class TaskDSLGenerator extends AbstractGenerator {
 			«val randomState = grid.stateOption as RandomState»
 			«val percentage = randomState.percentage»
 			
-			// Use Java's Random to fill the board with the specified percentage (percentage»%)
+			// Use Java's Random to fill the board with the specified percentage (${percentage}%)
 			java.util.Random random = new java.util.Random();
 			int totalCells = GRID_WIDTH * GRID_HEIGHT;
-			int cellsToFill = (int) Math.round(totalCells * («percentage» / 100.0));
+			int cellsToFill = (int) Math.round(totalCells * (${percentage} / 100.0));
 			int filledCount = 0;
-
+	
 			// Loop until the desired number of cells is filled
 			while (filledCount < cellsToFill) {
-				int x = random.nextInt(GRID_WIDTH);
-				int y = random.nextInt(GRID_HEIGHT);
+				int column = random.nextInt(GRID_WIDTH); // Changed x to column
+				int row = random.nextInt(GRID_HEIGHT); // Changed y to row
 				
 				// Only set if the cell was previously dead
-				if (!INITIAL_GRID[x][y]) {
-					INITIAL_GRID[x][y] = true;
+				if (!INITIAL_GRID[column][row]) {
+					INITIAL_GRID[column][row] = true;
 					filledCount++;
 				}
 			}
-		«ELSEIF grid.stateOption instanceof FunctionState»
-		  «val funcState = grid.stateOption as FunctionState»
-		  for (int c = 0; c < GRID_WIDTH; c++) {
-		      double raw = «exprToJava(funcState.function)»;
-		      // Use floor to avoid “jumping up” too much
-		      int r = (int) Math.floor(raw);
-		      if (r < 0) r = 0;
-		      if (r >= GRID_HEIGHT) r = GRID_HEIGHT - 1;
-		      INITIAL_GRID[c][r] = true;
-		  }
+		«ELSEIF grid.stateOption instanceof ProgramState»
+			«val progState = grid.stateOption as ProgramState»		
+			«val javaCondition = progState.program.toJavaCode» // Capture the generated expression here
+			
+			// Custom Program Fill: Iterate through every cell (column, row) and evaluate the expression
+			for (int row = 0; row < GRID_HEIGHT; row++) {
+				for (int column = 0; column < GRID_WIDTH; column++) {
+		                // The DSL expression must resolve to a boolean
+					if (${javaCondition}) { // <<<--- CORRECT INTERPOLATION FIX
+						INITIAL_GRID[column][row] = true;
+					}
+				}
+			}
 		«ELSE»
 			// Static Fill
 			«val staticState = grid.stateOption as StaticState»
 			«FOR cell : staticState.cells»
-			INITIAL_GRID[«cell.x»][«cell.y»] = true;
+			INITIAL_GRID[${cell.x}][${cell.y}] = true;
 			«ENDFOR»
 			
 		«ENDIF»

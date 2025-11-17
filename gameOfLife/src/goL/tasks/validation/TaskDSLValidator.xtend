@@ -10,7 +10,7 @@ import goL.tasks.taskDSL.DeathRule
 import goL.tasks.taskDSL.Grid
 import goL.tasks.taskDSL.StaticState
 import goL.tasks.taskDSL.Grid
-import goL.tasks.taskDSL.FunctionState
+//import goL.tasks.taskDSL.FunctionState
 import goL.tasks.taskDSL.VariableRef
 import goL.tasks.taskDSL.Expr
 import goL.tasks.taskDSL.NumberLiteral
@@ -242,7 +242,7 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 
 	public static val UNKNOWN_VARIABLE 	= 'unknown_variable'
 	public static val UNKNOWN_FUNCTION 	= 'unknown_function'
-	public static val VALID_VARIABLES 	= #["c","r","GRID_WIDTH","GRID_HEIGHT"]
+	public static val VALID_VARIABLES 	= #["column","row","GRID_WIDTH","GRID_HEIGHT"]
 	public static val VALID_FUNCTIONS 	= #["sin","cos","tan","sqrt","abs"]
 	/**
 	 * Validate a VariableRef node: only allow c, r, GRID_WIDTH, GRID_HEIGHT.
@@ -318,18 +318,18 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 	    } else if (expr instanceof FunctionCall) {
 	        val fc = expr as FunctionCall
 	        val fname = fc.funcName
-	        val arg = exprToJava(fc.argument)
+//	        val arg = exprToJava(fc.argument)
 	
 	        if (!VALID_FUNCTIONS.contains(fname)) {
 	            throw new IllegalArgumentException("Unknown function: " + fname + ". Allowed: " + VALID_FUNCTIONS.join(", "))
 	        }
 	
 	       switch (fname) {
-		    case "sin":  return "Math.sin("  + arg + ")"
-		    case "cos":  return "Math.cos("  + arg + ")"
-		    case "tan":  return "Math.tan("  + arg + ")"
-		    case "sqrt": return "Math.sqrt(" + arg + ")"
-		    case "abs":  return "Math.abs("  + arg + ")"
+//		    case "sin":  return "Math.sin("  + arg + ")"
+//		    case "cos":  return "Math.cos("  + arg + ")"
+//		    case "tan":  return "Math.tan("  + arg + ")"
+//		    case "sqrt": return "Math.sqrt(" + arg + ")"
+//		    case "abs":  return "Math.abs("  + arg + ")"
 		    default: throw new IllegalArgumentException(
 		        "Unknown function: " + fname + ". Allowed: " + VALID_FUNCTIONS.join(', ')
 		    )
