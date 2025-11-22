@@ -26,7 +26,10 @@ InitialStateOption:
         {RandomState} 	'Random' 	percentage=INT '%' // Option 2: Random fill percentage
     ) | (
     	{FunctionState} 'Function' 	function=Expr
-    );
+    ) | (
+        {PatternState}  'Pattern'   pattern = PatternDefinition 
+    )
+    ;
 
 LiveCell:
     '(' x=INT ',' y=INT ')';
@@ -114,4 +117,28 @@ FloatValue returns Expr:
 
 terminal FLOAT: ('0'..'9')+ '.' ('0'..'9')+;
 
+PatternDefinition:
+    CirclePattern | RectanglePattern | TrianglePattern;
+    
+// Circle center: (c, r), radius: int, optional: modifier
+CirclePattern:
+    {CirclePattern} 'Circle' 'center' '(' centerX=INT ',' centerY=INT ')' 'radius' radius=INT 
+        (modifier=PatternModifier)?; // modifier is optional
+
+// Point: (x, y) - uses LiveCell syntax for points
+// Note: Using four points for a rectangle is slightly redundant, usually two diagonal points suffice, 
+// but we follow the user request for four p1, p2, p3, p4.
+RectanglePattern:
+    {RectanglePattern} 'Rectangle' p1=LiveCell p2=LiveCell p3=LiveCell p4=LiveCell 
+        (modifier=PatternModifier)?;
+
+// Triangle uses three points
+TrianglePattern:
+    {TrianglePattern} 'Triangle' p1=LiveCell p2=LiveCell p3=LiveCell 
+        (modifier=PatternModifier)?;
+
+// Defines the optional modifier for all patterns
+enum PatternModifier:
+    FILL = 'fill' | ERASE = 'erase';
+    
 

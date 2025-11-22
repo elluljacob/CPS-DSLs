@@ -30,6 +30,12 @@ import goL.tasks.taskDSL.Div
 import goL.tasks.taskDSL.FunctionCall
 import goL.tasks.taskDSL.ParenExpr
 import goL.tasks.taskDSL.FunctionState
+import goL.tasks.taskDSL.PatternState
+import goL.tasks.taskDSL.PatternDefinition
+import goL.tasks.taskDSL.CirclePattern
+import goL.tasks.taskDSL.RectanglePattern
+import goL.tasks.taskDSL.TrianglePattern
+import goL.tasks.taskDSL.PatternModifier
 
 /**
  * Generates the RulesOfLife.java file based on the Game of Life DSL model.
@@ -225,6 +231,10 @@ class TaskDSLGenerator extends AbstractGenerator {
 					}
 				  }
 				}
+		«ELSEIF option instanceof PatternState»
+						«val patternState = option as PatternState»
+						// Pattern Definition
+						«patternState.pattern.toPatternSetup»
 		«ELSE»
 			// Static Fill
 			«val staticState = option as StaticState»
@@ -281,4 +291,137 @@ class TaskDSLGenerator extends AbstractGenerator {
 		}
 	}
 
+	def toPatternSetup(PatternDefinition pattern) '''
+        «IF pattern instanceof CirclePattern»
+            «pattern.toCircleSetup»
+        «ELSEIF pattern instanceof RectanglePattern»
+            «pattern.toRectangleSetup»
+        «ELSEIF pattern instanceof TrianglePattern»
+            «pattern.toTriangleSetup»
+        «ENDIF»
+	'''
+	
+	/**
+	 * Generates code for the Circle Pattern.
+	 */
+	def toCircleSetup(CirclePattern circle) '''
+        // Circle Pattern: center(«circle.centerX», «circle.centerY»), radius «circle.radius»
+        {
+            final int cx = «circle.centerX»;
+            final int cy = «circle.centerY»;
+            final int r = «circle.radius»;
+            final int rSquared = r * r;
+			final boolean shouldSet = «IF circle.modifier == PatternModifier.ERASE»false«ELSE»true«ENDIF»; // true for fill/default, false for erase
+            final boolean fillMode = «IF circle.modifier == PatternModifier.FILL || circle.modifier == PatternModifier.ERASE»true«ELSE»false«ENDIF»; // true for fill/erase, false for line drawing
+            final double LINE_TOLERANCE_SQUARED = 100.0; // Tolerance for drawing a line (10^2)
+
+            for (int c = 0; c < GRID_WIDTH; c++) {
+                for (int r_cell = 0; r_cell < GRID_HEIGHT; r_cell++) {
+                    int distSquared = (c - cx) * (c - cx) + (r_cell - cy) * (r_cell - cy);
+
+                    boolean match = false;
+                    if (fillMode) {
+                        // Fill or Erase mode: check if inside or on the boundary
+                        match = distSquared <= rSquared;
+                    } else {
+                        // Line mode (default): check if near the boundary
+                        match = Math.abs(distSquared - rSquared) < LINE_TOLERANCE_SQUARED;
+                    }
+                    
+                    if (match) {
+                        INITIAL_GRID[c][r_cell] = shouldSet;
+                    }
+                }
+            }
+        }
+	'''
+
+	/**
+	 * Generates code for the Rectangle Pattern.
+	 * It calculates the bounding box and iterates over it.
+	 * NOTE: Assumes p1 and p3 are diagonally opposite for filling logic, 
+	 * but uses all four for robustness. It uses the min/max of all X/Y coordinates to define the bounding box.
+	 */
+	def toRectangleSetup(RectanglePattern rect) '''
+        // Rectangle Pattern: p1(«rect.p1.x», «rect.p1.y»), p2(...), etc.
+        {
+            final int minX = Math.min(Math.min(«rect.p1.x», «rect.p2.x»), Math.min(«rect.p3.x», «rect.p4.x»));
+            final int maxX = Math.max(Math.max(«rect.p1.x», «rect.p2.x»), Math.max(«rect.p3.x», «rect.p4.x»));
+            final int minY = Math.min(Math.min(«rect.p1.y», «rect.p2.y»), Math.min(«rect.p3.y», «rect.p4.y»));
+            final int maxY = Math.max(Math.max(«rect.p1.y», «rect.p2.y»), Math.max(«rect.p3.y», «rect.p4.y»));
+
+            final boolean shouldSet = «IF rect.modifier == PatternModifier.ERASE»false«ELSE»true«ENDIF»;
+            final boolean fillMode = «IF rect.modifier == PatternModifier.FILL || rect.modifier == PatternModifier.ERASE»true«ELSE»false«ENDIF»;
+
+            for (int c = minX; c <= maxX; c++) {
+                for (int r_cell = minY; r_cell <= maxY; r_cell++) {
+                    if (c >= 0 && c < GRID_WIDTH && r_cell >= 0 && r_cell < GRID_HEIGHT) {
+                        
+                        boolean isBoundary = (c == minX || c == maxX || r_cell == minY || r_cell == maxY);
+                        
+                        if (fillMode) {
+                            // Fill or Erase mode: set all cells in the bounding box
+                            INITIAL_GRID[c][r_cell] = shouldSet;
+                        } else if (isBoundary) {
+                            // Line mode (default): set only the boundary cells
+                            INITIAL_GRID[c][r_cell] = shouldSet;
+                        }
+                    }
+                }
+            }
+        }
+	'''
+	
+	/**
+	 * Generates code for the Triangle Pattern using the Barycentric coordinate method for filling.
+	 */
+	def toTriangleSetup(TrianglePattern tri) '''
+        // Triangle Pattern: p1(«tri.p1.x», «tri.p1.y»), p2(«tri.p2.x», «tri.p2.y»), p3(«tri.p3.x», «tri.p3.y»)
+        {
+            final double x1 = «tri.p1.x», y1 = «tri.p1.y»;
+            final double x2 = «tri.p2.x», y2 = «tri.p2.y»;
+            final double x3 = «tri.p3.x», y3 = «tri.p3.y»;
+            
+            final boolean shouldSet = «IF tri.modifier == PatternModifier.ERASE»false«ELSE»true«ENDIF»;
+            final boolean fillMode = «IF tri.modifier == PatternModifier.FILL || tri.modifier == PatternModifier.ERASE»true«ELSE»false«ENDIF»;
+			
+            // Precalculate denominator for Barycentric coordinates (Area * 2)
+            final double area2 = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1);
+            final double ABS_AREA_2 = Math.abs(area2);
+            final double EPSILON = 0.0001; // Tolerance for floating point comparisons
+
+            // Calculate bounding box for performance optimization
+            final int minX = (int) Math.floor(Math.min(Math.min(x1, x2), x3));
+            final int maxX = (int) Math.ceil(Math.max(Math.max(x1, x2), x3));
+            final int minY = (int) Math.floor(Math.min(Math.min(y1, y2), y3));
+            final int maxY = (int) Math.ceil(Math.max(Math.max(y1, y2), y3));
+
+            for (int c = Math.max(0, minX); c < Math.min(GRID_WIDTH, maxX + 1); c++) {
+                for (int r_cell = Math.max(0, minY); r_cell < Math.min(GRID_HEIGHT, maxY + 1); r_cell++) {
+                    
+                    // Barycentric Coordinate Calculation
+                    // w1 = ((x2 - x) * (y3 - y) - (x3 - x) * (y2 - y)) / area2
+                    final double w1 = ((x2 - c) * (y3 - r_cell) - (x3 - c) * (y2 - r_cell)) / area2;
+                    // w2 = ((x3 - x) * (y1 - y) - (x1 - x) * (y3 - y)) / area2
+                    final double w2 = ((x3 - c) * (y1 - r_cell) - (x1 - c) * (y3 - r_cell)) / area2;
+                    // w3 = 1 - w1 - w2
+                    final double w3 = 1.0 - w1 - w2;
+
+                    // A point is inside the triangle if all weights are > 0.0
+                    boolean isInside = w1 >= -EPSILON && w2 >= -EPSILON && w3 >= -EPSILON;
+
+                    // Check if the point is close to the boundary (for line drawing)
+                    boolean isBoundary = (Math.abs(w1) < EPSILON || Math.abs(w2) < EPSILON || Math.abs(w3) < EPSILON) && isInside;
+
+                    if (fillMode) {
+                        if (isInside) {
+                            INITIAL_GRID[c][r_cell] = shouldSet;
+                        }
+                    } else if (isBoundary) {
+                        INITIAL_GRID[c][r_cell] = shouldSet;
+                    }
+                }
+            }
+        }
+	'''
 }

@@ -11,6 +11,10 @@
       <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//Operator/EQUAL"/>
       <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//Operator/GREATER_THAN"/>
     </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="TaskDSL.ecore#//PatternModifier">
+      <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//PatternModifier/FILL"/>
+      <genEnumLiterals ecoreEnumLiteral="TaskDSL.ecore#//PatternModifier/ERASE"/>
+    </genEnums>
     <genClasses ecoreClass="TaskDSL.ecore#//Model">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//Model/name"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Model/grid"/>
@@ -44,6 +48,25 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//DeathRule/count"/>
     </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//Expr"/>
+    <genClasses ecoreClass="TaskDSL.ecore#//PatternDefinition">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//PatternDefinition/modifier"/>
+    </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//CirclePattern">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//CirclePattern/centerX"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//CirclePattern/centerY"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//CirclePattern/radius"/>
+    </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//RectanglePattern">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//RectanglePattern/p1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//RectanglePattern/p2"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//RectanglePattern/p3"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//RectanglePattern/p4"/>
+    </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//TrianglePattern">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//TrianglePattern/p1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//TrianglePattern/p2"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//TrianglePattern/p3"/>
+    </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//StaticState">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//StaticState/cells"/>
     </genClasses>
@@ -52,6 +75,9 @@
     </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//FunctionState">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//FunctionState/function"/>
+    </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//PatternState">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//PatternState/pattern"/>
     </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//Add">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Add/left"/>
