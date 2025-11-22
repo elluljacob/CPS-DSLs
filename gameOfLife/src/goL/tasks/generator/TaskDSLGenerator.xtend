@@ -208,15 +208,22 @@ class TaskDSLGenerator extends AbstractGenerator {
 				}
 			}
 		«ELSEIF grid.stateOption instanceof FunctionState»
-		  «val funcState = grid.stateOption as FunctionState»
-		  for (int c = 0; c < GRID_WIDTH; c++) {
-		      double raw = «exprToJava(funcState.function)»;
-		      // Use floor to avoid “jumping up” too much
-		      int r = (int) Math.floor(raw);
-		      if (r < 0) r = 0;
-		      if (r >= GRID_HEIGHT) r = GRID_HEIGHT - 1;
-		      INITIAL_GRID[c][r] = true;
-		  }
+				«val funcState = grid.stateOption as FunctionState»
+				
+				// Initialize grid based on a function of two variables f(c, r), plotting a line/curve.
+				// A cell is alive if f(c,r) is close to zero.
+				// TOLERANCE defines the thickness of the line.
+				final double TOLERANCE = 10.0; 
+				
+				for (int c = 0; c < GRID_WIDTH; c++) {
+				  for (int r = 0; r < GRID_HEIGHT; r++) {
+					double result = «exprToJava(funcState.function)»;
+					// Check if the function result is close to zero (i.e., on the curve f(c,r) = 0)
+					if (Math.abs(result) < TOLERANCE) {
+						INITIAL_GRID[c][r] = true;
+					}
+				  }
+				}
 		«ELSE»
 			// Static Fill
 			«val staticState = grid.stateOption as StaticState»
