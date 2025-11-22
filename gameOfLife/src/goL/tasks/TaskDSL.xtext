@@ -81,7 +81,7 @@ MultiplicationExpr returns Expr:
 ;
 
 PrimaryExpr returns Expr:
-      NumberLiteral
+      Literal
     | VariableRef
     | FunctionCall
     | ParenExpr
@@ -95,14 +95,23 @@ ParenExpr returns Expr:
     {ParenExpr} '(' expr=Expr ')'
 ;
 
-NumberLiteral returns Expr:
-    {NumberLiteral} value=INT
-;
-
 VariableRef returns Expr:
     {VariableRef} varName=ID
 ;
 
+Literal returns Expr:
+      IntValue
+    | FloatValue
+;
 
+IntValue returns Expr:
+    {NumberLiteral} value=INT
+;
+
+FloatValue returns Expr:
+	{FloatLiteral} value=FLOAT
+;
+
+terminal FLOAT: ('0'..'9')+ '.' ('0'..'9')+;
 
 

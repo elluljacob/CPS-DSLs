@@ -20,6 +20,8 @@ import goL.tasks.taskDSL.StaticState
 
 import goL.tasks.taskDSL.Expr
 import goL.tasks.taskDSL.NumberLiteral
+import goL.tasks.taskDSL.FloatLiteral
+
 import goL.tasks.taskDSL.VariableRef
 import goL.tasks.taskDSL.Add
 import goL.tasks.taskDSL.Sub
@@ -46,6 +48,8 @@ class TaskDSLGenerator extends AbstractGenerator {
 	def String exprToJava(Expr expr) {
 	    if (expr instanceof NumberLiteral) {
 	        return (expr as NumberLiteral).value.toString
+	    } else if (expr instanceof FloatLiteral) {
+	        return (expr as FloatLiteral).value.toString
 	    } else if (expr instanceof VariableRef) {
 	        return (expr as VariableRef).varName
 	    } else if (expr instanceof Add) {
@@ -73,7 +77,6 @@ class TaskDSLGenerator extends AbstractGenerator {
 	        throw new IllegalStateException("Unhandled expr type: " + typeof(Expr))
 	    }
 	}
-
 
 
 

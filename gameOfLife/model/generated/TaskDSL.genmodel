@@ -76,11 +76,14 @@
     <genClasses ecoreClass="TaskDSL.ecore#//ParenExpr">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//ParenExpr/expr"/>
     </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//VariableRef">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//VariableRef/varName"/>
+    </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//NumberLiteral">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//NumberLiteral/value"/>
     </genClasses>
-    <genClasses ecoreClass="TaskDSL.ecore#//VariableRef">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//VariableRef/varName"/>
+    <genClasses ecoreClass="TaskDSL.ecore#//FloatLiteral">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//FloatLiteral/value"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>
