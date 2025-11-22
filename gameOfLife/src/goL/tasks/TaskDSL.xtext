@@ -17,7 +17,7 @@ Grid:
     	'x' 
     	sizeY=INT
     'InitialState' ':'
-	stateOption = InitialStateOption;
+	options += InitialStateOption+;
 	
 InitialStateOption:
     (

@@ -186,8 +186,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 	 * Generates the Java code for initializing the live cells in the static block.
 	 */
 	def toInitialCellSetup(Grid grid) '''
-		«IF grid.stateOption instanceof RandomState»
-			«val randomState = grid.stateOption as RandomState»
+	  «FOR option : grid.options»
+		«IF option instanceof RandomState»
+			«val randomState = option as RandomState»
 			«val percentage = randomState.percentage»
 			
 			// Use Java's Random to fill the board with the specified percentage (percentage»%)
@@ -207,8 +208,8 @@ class TaskDSLGenerator extends AbstractGenerator {
 					filledCount++;
 				}
 			}
-		«ELSEIF grid.stateOption instanceof FunctionState»
-				«val funcState = grid.stateOption as FunctionState»
+		«ELSEIF option instanceof FunctionState»
+				«val funcState = option as FunctionState»
 				
 				// Initialize grid based on a function of two variables f(c, r), plotting a line/curve.
 				// A cell is alive if f(c,r) is close to zero.
@@ -226,12 +227,13 @@ class TaskDSLGenerator extends AbstractGenerator {
 				}
 		«ELSE»
 			// Static Fill
-			«val staticState = grid.stateOption as StaticState»
+			«val staticState = option as StaticState»
 			«FOR cell : staticState.cells»
 			INITIAL_GRID[«cell.x»][«cell.y»] = true;
 			«ENDFOR»
 			
 		«ENDIF»
+	  «ENDFOR»
 	'''
 	
 	/**

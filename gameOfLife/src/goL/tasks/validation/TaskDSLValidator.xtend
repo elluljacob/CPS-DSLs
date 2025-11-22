@@ -34,39 +34,40 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 	def checkLiveCellCoordinates(Grid grid) {
 	    val sizeX = grid.sizeX
 	    val sizeY = grid.sizeY
-	
-	    // 1. Check if the initial state is static (i.e., not random)
-	    if (grid.stateOption instanceof StaticState) {
-	        
-	        // 2. Cast the stateOption to StaticState to access the 'cells' list
-	        val staticState = grid.stateOption as StaticState
-	        
-	        // 3. Iterate over the cells contained within the StaticState
-	        for (LiveCell cell : staticState.cells) {
-	            
-	            // Check Rule 1: LiveCell coordinates must be within grid bounds
-	            if (cell.x < 0 || cell.x >= sizeX) {
-	                // Issue error on the 'x' feature
-	                error(
-	                    'Cell X coordinate (' + cell.x + ') is outside the grid bounds [0, ' + (sizeX - 1) + '].',
-	                    cell,
-	                    TaskDSLPackage.Literals.LIVE_CELL__X,
-	                    INVALID_CELL_COORDINATE // Your custom error code
-	                )
-	            }
-	            if (cell.y < 0 || cell.y >= sizeY) {
-	                // Issue error on the 'y' feature
-	                error(
-	                    'Cell Y coordinate (' + cell.y + ') is outside the grid bounds [0, ' + (sizeY - 1) + '].',
-	                    cell,
-	                    TaskDSLPackage.Literals.LIVE_CELL__Y,
-	                    INVALID_CELL_COORDINATE
-	                )
-	            }
-	        }
-	    }
-	    // If it's RandomState, there are no individual cells to validate here.
-	}
+	    for (option : grid.options) {
+		    // 1. Check if the initial state is static (i.e., not random)
+		    if (option instanceof StaticState) {
+		        
+		        // 2. Cast the stateOption to StaticState to access the 'cells' list
+		        val staticState = option as StaticState
+		        
+		        // 3. Iterate over the cells contained within the StaticState
+		        for (LiveCell cell : staticState.cells) {
+		            
+		            // Check Rule 1: LiveCell coordinates must be within grid bounds
+		            if (cell.x < 0 || cell.x >= sizeX) {
+		                // Issue error on the 'x' feature
+		                error(
+		                    'Cell X coordinate (' + cell.x + ') is outside the grid bounds [0, ' + (sizeX - 1) + '].',
+		                    cell,
+		                    TaskDSLPackage.Literals.LIVE_CELL__X,
+		                    INVALID_CELL_COORDINATE // Your custom error code
+		                )
+		            }
+		            if (cell.y < 0 || cell.y >= sizeY) {
+		                // Issue error on the 'y' feature
+		                error(
+		                    'Cell Y coordinate (' + cell.y + ') is outside the grid bounds [0, ' + (sizeY - 1) + '].',
+		                    cell,
+		                    TaskDSLPackage.Literals.LIVE_CELL__Y,
+		                    INVALID_CELL_COORDINATE
+		                )
+		            }
+		        }
+		    }
+		    // If it's RandomState, there are no individual cells to validate here.
+	  }
+   }
 		
 	// --- Rule 2 (Error): Ensures the neighbor count in any rule is logically possible (between 0 and 8). ---
 	

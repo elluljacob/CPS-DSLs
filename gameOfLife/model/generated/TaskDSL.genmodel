@@ -19,7 +19,7 @@
     <genClasses ecoreClass="TaskDSL.ecore#//Grid">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//Grid/sizeX"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//Grid/sizeY"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Grid/stateOption"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Grid/options"/>
     </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//InitialStateOption"/>
     <genClasses ecoreClass="TaskDSL.ecore#//LiveCell">
