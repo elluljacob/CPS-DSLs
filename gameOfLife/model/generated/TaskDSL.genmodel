@@ -37,6 +37,10 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//LiveCell/x"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//LiveCell/y"/>
     </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//DeadCell">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//DeadCell/x"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//DeadCell/y"/>
+    </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//Rules">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Rules/birthRules"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Rules/survivalRules"/>
@@ -108,17 +112,14 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Pentadecathlon/anchor"/>
     </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//Glider">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//Glider/size"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//Glider/anchor"/>
     </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//SpaceShip">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//SpaceShip/size"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//SpaceShip/anchor"/>
     </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//GosperGun">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//GosperGun/anchor"/>
-    </genClasses>
-    <genClasses ecoreClass="TaskDSL.ecore#//SimkinGun">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//SimkinGun/anchor"/>
     </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//CustomPattern">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//CustomPattern/name"/>
@@ -128,11 +129,15 @@
     <genClasses ecoreClass="TaskDSL.ecore#//StaticState">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//StaticState/cells"/>
     </genClasses>
+    <genClasses ecoreClass="TaskDSL.ecore#//StaticEraseState">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//StaticEraseState/cells"/>
+    </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//RandomState">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//RandomState/percentage"/>
     </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//FunctionState">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//FunctionState/function"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TaskDSL.ecore#//FunctionState/tolerance"/>
     </genClasses>
     <genClasses ecoreClass="TaskDSL.ecore#//PatternState">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TaskDSL.ecore#//PatternState/pattern"/>

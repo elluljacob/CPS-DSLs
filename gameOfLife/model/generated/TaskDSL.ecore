@@ -20,6 +20,10 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="x" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="y" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DeadCell">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="x" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="y" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Rules">
     <eStructuralFeatures xsi:type="ecore:EReference" name="birthRules" upperBound="-1"
         eType="#//BirthRule" containment="true"/>
@@ -128,10 +132,6 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
         containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="SimkinGun" eSuperTypes="#//PatternDefinition">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
-        containment="true"/>
-  </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="SpaceShipSize">
     <eLiterals name="LIGHT" literal="light"/>
     <eLiterals name="MEDIUM" value="1" literal="medium"/>
@@ -153,12 +153,17 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="cells" upperBound="-1"
         eType="#//LiveCell" containment="true"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="StaticEraseState" eSuperTypes="#//InitialStateOption">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="cells" upperBound="-1"
+        eType="#//DeadCell" containment="true"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RandomState" eSuperTypes="#//InitialStateOption">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="percentage" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="FunctionState" eSuperTypes="#//InitialStateOption">
     <eStructuralFeatures xsi:type="ecore:EReference" name="function" eType="#//Expr"
         containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="tolerance" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="PatternState" eSuperTypes="#//InitialStateOption">
     <eStructuralFeatures xsi:type="ecore:EReference" name="pattern" eType="#//PatternDefinition"

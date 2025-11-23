@@ -22,11 +22,13 @@ Grid:
 	
 InitialStateOption:
     (
-        {StaticState} 		'Static' 		cells += LiveCell* // Option 1: Static list of LiveCells
+        {StaticState} 		'Static' 		cells += LiveCell* 
     ) | (
-        {RandomState} 		'Random' 		percentage=INT '%' // Option 2: Random fill percentage
+        {StaticEraseState} 	'StaticErase'   cells += DeadCell* 
     ) | (
-    	{FunctionState} 	'Function' 		function=Expr
+        {RandomState} 		'Random' 		percentage=INT '%'
+    ) | (
+    	{FunctionState} 	'Function' 		function=Expr (tolerance=FLOAT)?
     ) | (
         {PatternState}  	'Pattern'   	pattern = PatternDefinition 
     ) | (
@@ -37,6 +39,9 @@ InitialStateOption:
 LiveCell:
     '(' x=INT ',' y=INT ')';
 
+DeadCell:
+    '(' x=INT ',' y=INT ')';
+    
 // -----------------------------------------------------------------------------
 // RULES DEFINITION
 // -----------------------------------------------------------------------------

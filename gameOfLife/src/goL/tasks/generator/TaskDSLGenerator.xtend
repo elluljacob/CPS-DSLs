@@ -49,9 +49,10 @@ import goL.tasks.taskDSL.Toad
 import goL.tasks.taskDSL.Glider
 import goL.tasks.taskDSL.SpaceShip
 import goL.tasks.taskDSL.GosperGun
-import goL.tasks.taskDSL.SimkinGun
 import goL.tasks.taskDSL.CustomPattern
 import goL.tasks.taskDSL.CustPatternState
+import goL.tasks.taskDSL.StaticEraseState
+
 /**
  * Generates the RulesOfLife.java file based on the Game of Life DSL model.
  */
@@ -230,13 +231,21 @@ class TaskDSLGenerator extends AbstractGenerator {
 					filledCount++;
 				}
 			}
+		«ELSEIF option instanceof StaticEraseState»
+				// Static Fill
+				«val staticEraseState = option as StaticEraseState»
+				«FOR cell : staticEraseState.cells»
+					INITIAL_GRID[«cell.x»][«cell.y»] = false;
+				«ENDFOR»
 		«ELSEIF option instanceof FunctionState»
 				«val funcState = option as FunctionState»
 				
 				// Initialize grid based on a function of two variables f(c, r), plotting a line/curve.
 				// A cell is alive if f(c,r) is close to zero.
 				// TOLERANCE defines the thickness of the line.
-				final double TOLERANCE = 10.0; 
+
+				final double TOLERANCE = «IF funcState.tolerance !== null »«funcState.tolerance»«ELSE»1.0«ENDIF»;
+				
 				
 				for (int c = 0; c < GRID_WIDTH; c++) {
 				  for (int r = 0; r < GRID_HEIGHT; r++) {
@@ -935,7 +944,9 @@ class TaskDSLGenerator extends AbstractGenerator {
     '''
     def toNamedPatternPlacement(CustPatternState state) '''
 	    CustomPatternData patternData_«state.patternRef.name» = CUSTOM_PATTERNS.get("«state.patternRef.name»"); 
-	    if (patternData_«state.patternRef.name» != null) {
-	        applyPattern(patternData_«state.patternRef.name», «state.offsetX», «state.offsetY»);
-	    }
+		    if (patternData_«state.patternRef.name» != null) {
+		        applyPattern(patternData_«state.patternRef.name», «state.offsetX», «state.offsetY»);
+		    }
+		}
+	'''
 }
