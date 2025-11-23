@@ -119,7 +119,7 @@ terminal FLOAT: ('0'..'9')+ '.' ('0'..'9')+;
 
 PatternDefinition:
     CirclePattern | RectanglePattern | TrianglePattern | Block | BeeHive | Loaf | Boat | Tub 
-    | Blinker | Toad |  Beacon | Pulsar | Pentadecathlon |  Glider | SpaceShip | GosperGun | SimkinGun ;
+    | Blinker | Toad |  Beacon | Pulsar | Pentadecathlon |  Glider | SpaceShip | GosperGun;
     
 // Circle center: (c, r), radius: int, optional: modifier
 CirclePattern:
@@ -156,10 +156,9 @@ Pentadecathlon:     {Pentadecathlon} 'Pentadecathlon' anchor=LiveCell;
 
 // --- Spaceships and Guns ---
 // Requires one anchor point (top-left position)
-Glider:             {Glider} 'Glider' size=SpaceShipSize anchor=LiveCell ;
-SpaceShip:          {SpaceShip} 'SpaceShip' anchor=LiveCell;
+Glider:             {Glider} 'Glider' anchor=LiveCell ;
+SpaceShip:          {SpaceShip} 'SpaceShip' size=SpaceShipSize anchor=LiveCell;
 GosperGun:          {GosperGun} 'GosperGun' anchor=LiveCell;
-SimkinGun:          {SimkinGun} 'SimkinGun' anchor=LiveCell;
 
 enum SpaceShipSize:
     LIGHT = 'light' | MEDIUM = 'medium' | LARGE = 'large';
