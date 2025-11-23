@@ -4,6 +4,7 @@ generate taskDSL "http://www.tasks.goL/TaskDSL"
 
 Model:
     'Experiment' name=ID ':'
+    (patterns += CustomPattern)*
     grid = Grid
     rules = Rules;
 
@@ -21,13 +22,15 @@ Grid:
 	
 InitialStateOption:
     (
-        {StaticState} 	'Static' 	cells += LiveCell* // Option 1: Static list of LiveCells
+        {StaticState} 		'Static' 		cells += LiveCell* // Option 1: Static list of LiveCells
     ) | (
-        {RandomState} 	'Random' 	percentage=INT '%' // Option 2: Random fill percentage
+        {RandomState} 		'Random' 		percentage=INT '%' // Option 2: Random fill percentage
     ) | (
-    	{FunctionState} 'Function' 	function=Expr
+    	{FunctionState} 	'Function' 		function=Expr
     ) | (
-        {PatternState}  'Pattern'   pattern = PatternDefinition 
+        {PatternState}  	'Pattern'   	pattern = PatternDefinition 
+    ) | (
+    	{CustPatternState} 	'PlacePattern' 	patternRef=[CustomPattern] 'at' '(' offsetX=INT ',' offsetY=INT ')'
     )
     ;
 
@@ -117,9 +120,16 @@ FloatValue returns Expr:
 
 terminal FLOAT: ('0'..'9')+ '.' ('0'..'9')+;
 
+// -----------------------------------------------------------------------------
+// Patterns
+// A Set of Pre Defined patterns that the user can place
+// -----------------------------------------------------------------------------
 PatternDefinition:
-    CirclePattern | RectanglePattern | TrianglePattern | Block | BeeHive | Loaf | Boat | Tub 
-    | Blinker | Toad |  Beacon | Pulsar | Pentadecathlon |  Glider | SpaceShip | GosperGun | SimkinGun ;
+    CirclePattern 	| RectanglePattern 	| TrianglePattern 	| Block 			| 
+    BeeHive			| Loaf 				| Boat 				| Tub				| 
+    Blinker			| Toad 				| Beacon 			| Pulsar 			| 
+    Pentadecathlon 	| Glider 			| SpaceShip 		| GosperGun 		| 
+    SimkinGun 		| CustomPattern ;
     
 // Circle center: (c, r), radius: int, optional: modifier
 CirclePattern:
@@ -169,5 +179,15 @@ enum PatternModifier:
     DEFAULT = 'DEFAULT' | FILL = 'fill' | ERASE = 'erase';
     
 
+
+// -----------------------------------------------------------------------------
+// Custom Pattern
+// This is a customised pattern
+// -----------------------------------------------------------------------------
+CustomPattern:
+    'DefinePattern' name=ID ':'
+    'LiveCells' 	cells 		+= LiveCell*
+    ('DeadCells' 	deadCells 	+= LiveCell*)?
+;
     
 

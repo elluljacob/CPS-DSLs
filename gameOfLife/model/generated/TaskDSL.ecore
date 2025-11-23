@@ -3,6 +3,8 @@
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="taskDSL" nsURI="http://www.tasks.goL/TaskDSL" nsPrefix="taskDSL">
   <eClassifiers xsi:type="ecore:EClass" name="Model">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="patterns" upperBound="-1"
+        eType="#//CustomPattern" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="grid" eType="#//Grid" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="rules" eType="#//Rules"
         containment="true"/>
@@ -44,13 +46,12 @@
     <eLiterals name="GREATER_THAN" value="2" literal=">"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Expr"/>
-  <eClassifiers xsi:type="ecore:EClass" name="PatternDefinition">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="modifier" eType="#//PatternModifier"/>
-  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PatternDefinition"/>
   <eClassifiers xsi:type="ecore:EClass" name="CirclePattern" eSuperTypes="#//PatternDefinition">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="centerX" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="centerY" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="radius" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="modifier" eType="#//PatternModifier"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="tolerance" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RectanglePattern" eSuperTypes="#//PatternDefinition">
@@ -62,6 +63,7 @@
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="p4" eType="#//LiveCell"
         containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="modifier" eType="#//PatternModifier"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="TrianglePattern" eSuperTypes="#//PatternDefinition">
     <eStructuralFeatures xsi:type="ecore:EReference" name="p1" eType="#//LiveCell"
@@ -70,12 +72,82 @@
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="p3" eType="#//LiveCell"
         containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="modifier" eType="#//PatternModifier"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="tolerance" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Block" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BeeHive" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Loaf" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Boat" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Tub" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Blinker" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Toad" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Beacon" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Pulsar" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Pentadecathlon" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Glider" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="size" eType="#//SpaceShipSize"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SpaceShip" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="GosperGun" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SimkinGun" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="SpaceShipSize">
+    <eLiterals name="LIGHT" literal="light"/>
+    <eLiterals name="MEDIUM" value="1" literal="medium"/>
+    <eLiterals name="LARGE" value="2" literal="large"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="PatternModifier">
     <eLiterals name="DEFAULT" literal="DEFAULT"/>
     <eLiterals name="FILL" value="1" literal="fill"/>
     <eLiterals name="ERASE" value="2" literal="erase"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CustomPattern" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="cells" upperBound="-1"
+        eType="#//LiveCell" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="deadCells" upperBound="-1"
+        eType="#//LiveCell" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="StaticState" eSuperTypes="#//InitialStateOption">
     <eStructuralFeatures xsi:type="ecore:EReference" name="cells" upperBound="-1"
@@ -91,6 +163,11 @@
   <eClassifiers xsi:type="ecore:EClass" name="PatternState" eSuperTypes="#//InitialStateOption">
     <eStructuralFeatures xsi:type="ecore:EReference" name="pattern" eType="#//PatternDefinition"
         containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CustPatternState" eSuperTypes="#//InitialStateOption">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="patternRef" eType="#//CustomPattern"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="offsetX" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="offsetY" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Add" eSuperTypes="#//Expr">
     <eStructuralFeatures xsi:type="ecore:EReference" name="left" eType="#//Expr" containment="true"/>

@@ -36,7 +36,8 @@ import goL.tasks.taskDSL.CirclePattern
 import goL.tasks.taskDSL.RectanglePattern
 import goL.tasks.taskDSL.TrianglePattern
 import goL.tasks.taskDSL.PatternModifier
-
+import goL.tasks.taskDSL.CustomPattern
+import goL.tasks.taskDSL.CustPatternState
 /**
  * Generates the RulesOfLife.java file based on the Game of Life DSL model.
  */
@@ -70,12 +71,12 @@ class TaskDSLGenerator extends AbstractGenerator {
 	        val fc = expr as FunctionCall
 	        val argStr = exprToJava(fc.argument)
 	        switch fc.funcName {
-	            case "sin": return "Math.sin(" + argStr + ")"
-	            case "cos": return "Math.cos(" + argStr + ")"
-	            case "tan": return "Math.tan(" + argStr + ")"
-	            case "sqrt": return "Math.sqrt(" + argStr + ")"
-	            case "abs": return "Math.abs(" + argStr + ")"
-	            default: return fc.funcName + "(" + argStr + ")"
+	            case "sin"	: return "Math.sin(" 		+ argStr + ")"
+	            case "cos"	: return "Math.cos(" 		+ argStr + ")"
+	            case "tan"	: return "Math.tan(" 		+ argStr + ")"
+	            case "sqrt"	: return "Math.sqrt(" 		+ argStr + ")"
+	            case "abs"	: return "Math.abs(" 		+ argStr + ")"
+	            default		: return fc.funcName + "(" 	+ argStr + ")"
 	        }
 	    } else if (expr instanceof ParenExpr) {
 	        return "(" + exprToJava((expr as ParenExpr).expr) + ")"
@@ -105,7 +106,7 @@ class TaskDSLGenerator extends AbstractGenerator {
 		
 		    // Initial state setup (true = alive)
 		    public static boolean[][] INITIAL_GRID = new boolean[GRID_WIDTH][GRID_HEIGHT];
-		
+			«toCustomPatternDefinitions(model)» 
 		    // Static block to initialize the grid with live cells (defined in the DSL's Grid section)
 		    static {
 		        «model.grid.toInitialCellSetup»
@@ -184,6 +185,7 @@ class TaskDSLGenerator extends AbstractGenerator {
 		            }
 		        }
 		    }
+    		«toApplyPatternMethod»
 		}
 	'''
 	
@@ -232,9 +234,13 @@ class TaskDSLGenerator extends AbstractGenerator {
 				  }
 				}
 		«ELSEIF option instanceof PatternState»
-						«val patternState = option as PatternState»
-						// Pattern Definition
-						«patternState.pattern.toPatternSetup»
+				«val patternState = option as PatternState»
+				// Pattern Definition
+				«patternState.pattern.toPatternSetup»
+		«ELSEIF option instanceof CustPatternState»
+                «val custPatternState = option as CustPatternState»
+                // Place a defined NamedPattern at an offset
+                «custPatternState.toNamedPatternPlacement»
 		«ELSE»
 			// Static Fill
 			«val staticState = option as StaticState»
@@ -426,5 +432,68 @@ class TaskDSLGenerator extends AbstractGenerator {
                 }
             }
         }
+	'''
+	/* =========================================================================================
+     * Generates the Java code for defining all reusable patterns in a static Map.
+     * This map will store the Live and Dead cell coordinates relative to the pattern's anchor (0,0).
+     * =========================================================================================
+     */
+     def toCustomPatternDefinitions(Model model) '''
+        // Helper type stored inside RulesOfLife
+        public static final class CustomPatternData {
+            public final java.util.List<Point> liveCells;
+            public final java.util.List<Point> deadCells;
+            public CustomPatternData(java.util.List<Point> liveCells,
+                                     java.util.List<Point> deadCells) {
+                this.liveCells = liveCells;
+                this.deadCells = deadCells;
+            }
+        }
+
+        public static final java.util.Map<String, CustomPatternData> CUSTOM_PATTERNS
+            = new java.util.HashMap<>();
+
+        static {
+            «FOR p : model.patterns»
+                java.util.List<Point> live_«p.name» = new java.util.ArrayList<>();
+                «FOR c : p.cells»
+                    live_«p.name».add(new Point(«c.x», «c.y»));
+                «ENDFOR»
+
+                java.util.List<Point> dead_«p.name» = new java.util.ArrayList<>();
+                «FOR d : p.deadCells»
+                    dead_«p.name».add(new Point(«d.x», «d.y»));
+                «ENDFOR»
+
+                CUSTOM_PATTERNS.put("«p.name»",
+                    new CustomPatternData(live_«p.name», dead_«p.name»));
+            «ENDFOR»
+        }
+    '''
+    
+    
+    
+    
+    def toApplyPatternMethod() '''
+        private static void applyPattern(CustomPatternData data, int ox, int oy) {
+            for (Point p : data.liveCells) {
+                int x = p.x + ox;
+                int y = p.y + oy;
+                if (x>=0 && x<GRID_WIDTH && y>=0 && y<GRID_HEIGHT)
+                    INITIAL_GRID[x][y] = true;
+            }
+            for (Point p : data.deadCells) {
+                int x = p.x + ox;
+                int y = p.y + oy;
+                if (x>=0 && x<GRID_WIDTH && y>=0 && y<GRID_HEIGHT)
+                    INITIAL_GRID[x][y] = false;
+            }
+        }
+    '''
+    def toNamedPatternPlacement(CustPatternState state) '''
+	    CustomPatternData patternData_«state.patternRef.name» = CUSTOM_PATTERNS.get("«state.patternRef.name»"); 
+	    if (patternData_«state.patternRef.name» != null) {
+	        applyPattern(patternData_«state.patternRef.name», «state.offsetX», «state.offsetY»);
+	    }
 	'''
 }
