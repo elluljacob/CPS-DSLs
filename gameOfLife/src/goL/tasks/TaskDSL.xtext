@@ -123,7 +123,7 @@ PatternDefinition:
 // Circle center: (c, r), radius: int, optional: modifier
 CirclePattern:
     {CirclePattern} 'Circle' 'center' '(' centerX=INT ',' centerY=INT ')' 'radius' radius=INT 
-        (modifier=PatternModifier)?; // modifier is optional
+        (modifier=PatternModifier)? ('tolerance' tolerance=FLOAT)?; // optionals
 
 // Point: (x, y) - uses LiveCell syntax for points
 // Note: Using four points for a rectangle is slightly redundant, usually two diagonal points suffice, 
@@ -135,10 +135,10 @@ RectanglePattern:
 // Triangle uses three points
 TrianglePattern:
     {TrianglePattern} 'Triangle' p1=LiveCell p2=LiveCell p3=LiveCell 
-        (modifier=PatternModifier)?;
+        (modifier=PatternModifier)? ('tolerance' tolerance=FLOAT)?;
 
 // Defines the optional modifier for all patterns
 enum PatternModifier:
-    FILL = 'fill' | ERASE = 'erase';
+    DEFAULT = 'DEFAULT' | FILL = 'fill' | ERASE = 'erase';
     
 

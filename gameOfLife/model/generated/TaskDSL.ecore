@@ -51,6 +51,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="centerX" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="centerY" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="radius" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="tolerance" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RectanglePattern" eSuperTypes="#//PatternDefinition">
     <eStructuralFeatures xsi:type="ecore:EReference" name="p1" eType="#//LiveCell"
@@ -69,10 +70,12 @@
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="p3" eType="#//LiveCell"
         containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="tolerance" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="PatternModifier">
-    <eLiterals name="FILL" literal="fill"/>
-    <eLiterals name="ERASE" value="1" literal="erase"/>
+    <eLiterals name="DEFAULT" literal="DEFAULT"/>
+    <eLiterals name="FILL" value="1" literal="fill"/>
+    <eLiterals name="ERASE" value="2" literal="erase"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="StaticState" eSuperTypes="#//InitialStateOption">
     <eStructuralFeatures xsi:type="ecore:EReference" name="cells" upperBound="-1"

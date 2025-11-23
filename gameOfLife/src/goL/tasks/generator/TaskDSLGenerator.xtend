@@ -313,7 +313,7 @@ class TaskDSLGenerator extends AbstractGenerator {
             final int rSquared = r * r;
 			final boolean shouldSet = «IF circle.modifier == PatternModifier.ERASE»false«ELSE»true«ENDIF»; // true for fill/default, false for erase
             final boolean fillMode = «IF circle.modifier == PatternModifier.FILL || circle.modifier == PatternModifier.ERASE»true«ELSE»false«ENDIF»; // true for fill/erase, false for line drawing
-            final double LINE_TOLERANCE_SQUARED = 100.0; // Tolerance for drawing a line (10^2)
+            final double LINE_TOLERANCE_SQUARED = «IF circle.tolerance !== null »«circle.tolerance»«ELSE»10.0«ENDIF»;
 
             for (int c = 0; c < GRID_WIDTH; c++) {
                 for (int r_cell = 0; r_cell < GRID_HEIGHT; r_cell++) {
@@ -351,6 +351,9 @@ class TaskDSLGenerator extends AbstractGenerator {
             final int maxY = Math.max(Math.max(«rect.p1.y», «rect.p2.y»), Math.max(«rect.p3.y», «rect.p4.y»));
 
             final boolean shouldSet = «IF rect.modifier == PatternModifier.ERASE»false«ELSE»true«ENDIF»;
+            final boolean isRectFill = «IF rect.modifier == PatternModifier.FILL»true«ELSE»false«ENDIF»;
+            final boolean isRectErase = «IF rect.modifier == PatternModifier.ERASE»true«ELSE»false«ENDIF»;
+                   
             final boolean fillMode = «IF rect.modifier == PatternModifier.FILL || rect.modifier == PatternModifier.ERASE»true«ELSE»false«ENDIF»;
 
             for (int c = minX; c <= maxX; c++) {
@@ -388,7 +391,7 @@ class TaskDSLGenerator extends AbstractGenerator {
             // Precalculate denominator for Barycentric coordinates (Area * 2)
             final double area2 = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1);
             final double ABS_AREA_2 = Math.abs(area2);
-            final double EPSILON = 0.0001; // Tolerance for floating point comparisons
+            final double EPSILON = «IF tri.tolerance !== null »«tri.tolerance»«ELSE»0.01«ENDIF»;; // Tolerance for floating point comparisons
 
             // Calculate bounding box for performance optimization
             final int minX = (int) Math.floor(Math.min(Math.min(x1, x2), x3));
