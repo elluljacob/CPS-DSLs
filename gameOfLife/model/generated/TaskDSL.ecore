@@ -116,11 +116,11 @@
         containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Glider" eSuperTypes="#//PatternDefinition">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="size" eType="#//SpaceShipSize"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
         containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="SpaceShip" eSuperTypes="#//PatternDefinition">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="size" eType="#//SpaceShipSize"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="anchor" eType="#//LiveCell"
         containment="true"/>
   </eClassifiers>

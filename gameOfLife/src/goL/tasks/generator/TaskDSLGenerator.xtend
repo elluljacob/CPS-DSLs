@@ -36,6 +36,20 @@ import goL.tasks.taskDSL.CirclePattern
 import goL.tasks.taskDSL.RectanglePattern
 import goL.tasks.taskDSL.TrianglePattern
 import goL.tasks.taskDSL.PatternModifier
+import goL.tasks.taskDSL.Tub
+import goL.tasks.taskDSL.Boat
+import goL.tasks.taskDSL.Block
+import goL.tasks.taskDSL.BeeHive
+import goL.tasks.taskDSL.Loaf
+import goL.tasks.taskDSL.Blinker
+import goL.tasks.taskDSL.Pentadecathlon
+import goL.tasks.taskDSL.Pulsar
+import goL.tasks.taskDSL.Beacon
+import goL.tasks.taskDSL.Toad
+import goL.tasks.taskDSL.Glider
+import goL.tasks.taskDSL.SpaceShip
+import goL.tasks.taskDSL.GosperGun
+import goL.tasks.taskDSL.SimkinGun
 import goL.tasks.taskDSL.CustomPattern
 import goL.tasks.taskDSL.CustPatternState
 /**
@@ -298,12 +312,26 @@ class TaskDSLGenerator extends AbstractGenerator {
 	}
 
 	def toPatternSetup(PatternDefinition pattern) '''
-        «IF pattern instanceof CirclePattern»
-            «pattern.toCircleSetup»
-        «ELSEIF pattern instanceof RectanglePattern»
-            «pattern.toRectangleSetup»
-        «ELSEIF pattern instanceof TrianglePattern»
-            «pattern.toTriangleSetup»
+        «IF pattern instanceof CirclePattern» «pattern.toCircleSetup»
+        «ELSEIF pattern instanceof RectanglePattern» «pattern.toRectangleSetup»
+        «ELSEIF pattern instanceof TrianglePattern» «pattern.toTriangleSetup»
+        
+        «ELSEIF pattern instanceof Block» «pattern.toBlockSetup»
+        «ELSEIF pattern instanceof BeeHive» «pattern.toBeeHiveSetup»
+        «ELSEIF pattern instanceof Loaf» «pattern.toLoafSetup»
+        «ELSEIF pattern instanceof Boat» «pattern.toBoatSetup»
+        «ELSEIF pattern instanceof Tub» «pattern.toTubSetup»
+        
+        «ELSEIF pattern instanceof Blinker» «pattern.toBlinkerSetup»
+        «ELSEIF pattern instanceof Toad» «pattern.toToadSetup»
+        «ELSEIF pattern instanceof Beacon» «pattern.toBeaconSetup»
+        «ELSEIF pattern instanceof Pulsar» «pattern.toPulsarSetup»
+        «ELSEIF pattern instanceof Pentadecathlon» «pattern.toPentadecathlonSetup»
+ 
+	    «ELSEIF pattern instanceof Glider» «pattern.toGliderSetup»
+	    «ELSEIF pattern instanceof SpaceShip» «pattern.toSpaceShipSetup»
+	    «ELSEIF pattern instanceof GosperGun» «pattern.toGosperGunSetup»
+ 
         «ENDIF»
 	'''
 	
@@ -433,6 +461,424 @@ class TaskDSLGenerator extends AbstractGenerator {
             }
         }
 	'''
+	
+	/**
+	 * Generates code for the Block (2x2) pattern.
+	 */
+	def toBlockSetup(Block block) '''
+		// Pattern Block at (block.anchor.x, block.anchor.y)
+		{
+			final int anchorX = «block.anchor.x»;
+			final int anchorY = «block.anchor.y»;
+			
+			// Block (2x2)
+			INITIAL_GRID[anchorX + 0][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 1][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 0][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 1][anchorY + 1] = true;
+		}
+	'''
+
+	/**
+	 * Generates code for the BeeHive (4x3) pattern.
+	 */
+	def toBeeHiveSetup(BeeHive beehive) '''
+		// Pattern BeeHive at (beehive.anchor.x, beehive.anchor.y)
+		{
+			final int anchorX = «beehive.anchor.x»;
+			final int anchorY = «beehive.anchor.y»;
+
+			// BeeHive (4x3)
+			INITIAL_GRID[anchorX + 1][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 2][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 0][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 3][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 1][anchorY + 2] = true;
+			INITIAL_GRID[anchorX + 2][anchorY + 2] = true;
+		}
+	'''
+
+	/**
+	 * Generates code for the Loaf (4x4) pattern.
+	 */
+	def toLoafSetup(Loaf loaf) '''
+		// Pattern Loaf at (loaf.anchor.x, loaf.anchor.y)
+		{
+			final int anchorX = «loaf.anchor.x»;
+			final int anchorY = «loaf.anchor.y»;
+
+			// Loaf (4x4)
+			INITIAL_GRID[anchorX + 1][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 2][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 0][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 3][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 1][anchorY + 2] = true;
+			INITIAL_GRID[anchorX + 3][anchorY + 2] = true;
+			INITIAL_GRID[anchorX + 2][anchorY + 3] = true;
+		}
+	'''
+
+	/**
+	 * Generates code for the Boat (3x3) pattern.
+	 */
+	def toBoatSetup(Boat boat) '''
+		// Pattern Boat at (boat.anchor.x, boat.anchor.y)
+		{
+			final int anchorX = «boat.anchor.x»;
+			final int anchorY = «boat.anchor.y»;
+
+			// Boat (3x3)
+			INITIAL_GRID[anchorX + 0][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 1][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 0][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 2][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 1][anchorY + 2] = true;
+		}
+	'''
+
+	/**
+	 * Generates code for the Tub (3x3) pattern.
+	 */
+	def toTubSetup(Tub tub) '''
+		// Pattern Tub at (tub.anchor.x, tub.anchor.y)
+		{
+			final int anchorX = «tub.anchor.x»;
+			final int anchorY = «tub.anchor.y»;
+
+			// Tub (3x3)
+			INITIAL_GRID[anchorX + 1][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 0][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 2][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 1][anchorY + 2] = true;
+		}
+	'''
+	
+	/**
+	 * Generates code for the Blinker (1x3) pattern.
+	 */
+	def toBlinkerSetup(Blinker blinker) '''
+		// Pattern Blinker at (blinker.anchor.x, blinker.anchor.y)
+		{
+			final int anchorX = «blinker.anchor.x»;
+			final int anchorY = «blinker.anchor.y»;
+
+			// blinker (1x3)
+			INITIAL_GRID[anchorX + 0][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 0][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 0][anchorY + 2] = true;
+		}
+	'''
+	
+	
+/**
+	 * Generates code for the Toad (4x2) pattern.
+	 */
+	def toToadSetup(Toad toad) '''
+		// Pattern Toad at («toad.anchor.x», «toad.anchor.y»)
+		{
+			final int anchorX = «toad.anchor.x»;
+			final int anchorY = «toad.anchor.y»;
+
+			// Toad (4x2, 6 cells)
+			// Row 0
+			INITIAL_GRID[anchorX + 1][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 2][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 3][anchorY + 0] = true;
+			// Row 1
+			INITIAL_GRID[anchorX + 0][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 1][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 2][anchorY + 1] = true;
+		}
+	'''
+	
+	/**
+	 * Generates code for the Beacon (4x4) pattern.
+	 */
+	def toBeaconSetup(Beacon beacon) '''
+		// Pattern Beacon at («beacon.anchor.x», «beacon.anchor.y»)
+		{
+			final int anchorX = «beacon.anchor.x»;
+			final int anchorY = «beacon.anchor.y»;
+
+			// Beacon (4x4, 6 cells)
+			// Top-Left 2x2 Block
+			INITIAL_GRID[anchorX + 0][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 1][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 0][anchorY + 1] = true;
+			// Bottom-Right 2x2 Block
+			INITIAL_GRID[anchorX + 3][anchorY + 2] = true;
+			INITIAL_GRID[anchorX + 2][anchorY + 3] = true;
+			INITIAL_GRID[anchorX + 3][anchorY + 3] = true;
+		}
+	'''
+	
+/**
+	 * Generates code for the Pulsar (13x13) pattern, Period 3.
+	 * 
+	 */
+	def toPulsarSetup(Pulsar pulsar) '''
+		// Pattern Pulsar at («pulsar.anchor.x», «pulsar.anchor.y») (13x13 Bounding Box)
+		{
+			final int anchorX = «pulsar.anchor.x»;
+			final int anchorY = «pulsar.anchor.y»;
+
+			INITIAL_GRID[anchorX + 2][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 3][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 4][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 8][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 9][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 10][anchorY + 0] = true;
+			
+			INITIAL_GRID[anchorX + 0][anchorY + 2] = true;
+			INITIAL_GRID[anchorX + 5][anchorY + 2] = true;
+			INITIAL_GRID[anchorX + 7][anchorY + 2] = true;
+			INITIAL_GRID[anchorX + 12][anchorY + 2] = true;
+			
+			INITIAL_GRID[anchorX + 0][anchorY + 3] = true;
+			INITIAL_GRID[anchorX + 5][anchorY + 3] = true;
+			INITIAL_GRID[anchorX + 7][anchorY + 3] = true;
+			INITIAL_GRID[anchorX + 12][anchorY + 3] = true;
+			
+			INITIAL_GRID[anchorX + 0][anchorY + 4] = true;
+			INITIAL_GRID[anchorX + 5][anchorY + 4] = true;
+			INITIAL_GRID[anchorX + 7][anchorY + 4] = true;
+			INITIAL_GRID[anchorX + 12][anchorY + 4] = true;
+
+			INITIAL_GRID[anchorX + 2][anchorY + 5] = true;
+			INITIAL_GRID[anchorX + 3][anchorY + 5] = true;
+			INITIAL_GRID[anchorX + 4][anchorY + 5] = true;
+			INITIAL_GRID[anchorX + 8][anchorY + 5] = true;
+			INITIAL_GRID[anchorX + 9][anchorY + 5] = true;
+			INITIAL_GRID[anchorX + 10][anchorY + 5] = true;
+						
+			INITIAL_GRID[anchorX + 2][anchorY + 7] = true;
+			INITIAL_GRID[anchorX + 3][anchorY + 7] = true;
+			INITIAL_GRID[anchorX + 4][anchorY + 7] = true;
+			INITIAL_GRID[anchorX + 8][anchorY + 7] = true;
+			INITIAL_GRID[anchorX + 9][anchorY + 7] = true;
+			INITIAL_GRID[anchorX + 10][anchorY + 7] = true;
+			
+			INITIAL_GRID[anchorX + 0][anchorY + 8] = true;
+			INITIAL_GRID[anchorX + 5][anchorY + 8] = true;
+			INITIAL_GRID[anchorX + 7][anchorY + 8] = true;
+			INITIAL_GRID[anchorX + 12][anchorY + 8] = true;
+			
+			INITIAL_GRID[anchorX + 0][anchorY + 9] = true;
+			INITIAL_GRID[anchorX + 5][anchorY + 9] = true;
+			INITIAL_GRID[anchorX + 7][anchorY + 9] = true;
+			INITIAL_GRID[anchorX + 12][anchorY + 9] = true;
+			
+			INITIAL_GRID[anchorX + 0][anchorY + 10] = true;
+			INITIAL_GRID[anchorX + 5][anchorY + 10] = true;
+			INITIAL_GRID[anchorX + 7][anchorY + 10] = true;
+			INITIAL_GRID[anchorX + 12][anchorY + 10] = true;
+			
+			INITIAL_GRID[anchorX + 2][anchorY + 12] = true;
+			INITIAL_GRID[anchorX + 3][anchorY + 12] = true;
+			INITIAL_GRID[anchorX + 4][anchorY + 12] = true;
+			INITIAL_GRID[anchorX + 8][anchorY + 12] = true;
+			INITIAL_GRID[anchorX + 9][anchorY + 12] = true;
+			INITIAL_GRID[anchorX + 10][anchorY + 12] = true;
+		}
+	'''
+	
+	/**
+	 * Generates code for the Pentadecathlon (10x3) pattern, Period 15.
+	 * 
+	 */
+	def toPentadecathlonSetup(Pentadecathlon pd) '''
+		// Pattern Pentadecathlon at («pd.anchor.x», «pd.anchor.y») (10x3 Bounding Box)
+		{
+			final int anchorX = «pd.anchor.x»;
+			final int anchorY = «pd.anchor.y»;
+
+			// Blocks on top and bottom of the bar:
+			INITIAL_GRID[anchorX + 3][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 4][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 5][anchorY + 0] = true;
+			
+			INITIAL_GRID[anchorX + 2][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 6][anchorY + 1] = true;
+			
+			INITIAL_GRID[anchorX + 1][anchorY + 2] = true;
+			INITIAL_GRID[anchorX + 7][anchorY + 2] = true;
+
+			INITIAL_GRID[anchorX + 0][anchorY + 4] = true;
+			INITIAL_GRID[anchorX + 0][anchorY + 5] = true;
+			INITIAL_GRID[anchorX + 8][anchorY + 4] = true;
+			INITIAL_GRID[anchorX + 8][anchorY + 5] = true;
+			
+			INITIAL_GRID[anchorX + 1][anchorY + 7] = true;
+			INITIAL_GRID[anchorX + 7][anchorY + 7] = true;
+			
+			INITIAL_GRID[anchorX + 2][anchorY + 8] = true;
+			INITIAL_GRID[anchorX + 6][anchorY + 8] = true;
+			
+			INITIAL_GRID[anchorX + 3][anchorY + 9] = true;
+			INITIAL_GRID[anchorX + 4][anchorY + 9] = true;
+			INITIAL_GRID[anchorX + 5][anchorY + 9] = true;
+		}
+	'''
+	
+	/**
+	 * Generates code for the Glider (3x3) pattern.
+	 * Moves diagonally (1, 1) every 4 generations.
+	 */
+	def toGliderSetup(Glider glider) '''
+		// Pattern Glider at («glider.anchor.x», «glider.anchor.y»)
+		{
+			final int anchorX = «glider.anchor.x»;
+			final int anchorY = «glider.anchor.y»;
+
+			INITIAL_GRID[anchorX + 2][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 0][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 2][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 1][anchorY + 2] = true;
+			INITIAL_GRID[anchorX + 2][anchorY + 2] = true;
+		}
+	'''
+	
+	/**
+	 * Generates code for the Lightweight, Mediumweight, and Heavyweight SpaceShips.
+	 */
+	def toSpaceShipSetup(SpaceShip spaceShip) '''
+		// Pattern SpaceShip («spaceShip.size») at («spaceShip.anchor.x», «spaceShip.anchor.y»)
+		{
+			«IF spaceShip.size.toString == "light"»
+				«toLightSpaceShipSetup(spaceShip.anchor.x, spaceShip.anchor.y)»
+			«ELSEIF spaceShip.size.toString == "medium"»
+				«toMediumSpaceShipSetup(spaceShip.anchor.x, spaceShip.anchor.y)»
+			«ELSEIF spaceShip.size.toString == "large"»
+				«toLargeSpaceShipSetup(spaceShip.anchor.x, spaceShip.anchor.y)»
+			«ENDIF»
+		}
+	'''
+	
+	/**
+	 * Private helper to set up the Lightweight SpaceShip (LWSS).
+	 */
+	private def toLightSpaceShipSetup(int anchorX, int anchorY) '''
+		final int anchorX = «anchorX»;
+		final int anchorY = «anchorY»;
+							
+		INITIAL_GRID[anchorX + 1][anchorY + 0] = true;
+		INITIAL_GRID[anchorX + 2][anchorY + 0] = true;
+		INITIAL_GRID[anchorX + 3][anchorY + 0] = true;
+		INITIAL_GRID[anchorX + 4][anchorY + 0] = true;
+		// Row 1
+		INITIAL_GRID[anchorX + 0][anchorY + 1] = true;
+		INITIAL_GRID[anchorX + 4][anchorY + 1] = true;
+		// Row 2
+		INITIAL_GRID[anchorX + 4][anchorY + 2] = true;
+		// Row 3
+		INITIAL_GRID[anchorX + 0][anchorY + 3] = true;
+		INITIAL_GRID[anchorX + 3][anchorY + 3] = true;
+	'''
+	
+	/**
+	 * Private helper to set up the Mediumweight SpaceShip (MWSS).
+	 */
+	private def toMediumSpaceShipSetup(int anchorX, int anchorY) '''
+		final int anchorX = «anchorX»;
+		final int anchorY = «anchorY»;
+		
+		INITIAL_GRID[anchorX + 2][anchorY + 0] = true;
+		
+		INITIAL_GRID[anchorX + 0][anchorY + 1] = true;
+		INITIAL_GRID[anchorX + 4][anchorY + 1] = true;
+		
+		INITIAL_GRID[anchorX + 5][anchorY + 2] = true;
+		
+		INITIAL_GRID[anchorX + 5][anchorY + 3] = true;
+		INITIAL_GRID[anchorX + 0][anchorY + 3] = true;
+		
+		INITIAL_GRID[anchorX + 1][anchorY + 4] = true;
+		INITIAL_GRID[anchorX + 2][anchorY + 4] = true;
+		INITIAL_GRID[anchorX + 3][anchorY + 4] = true;
+		INITIAL_GRID[anchorX + 4][anchorY + 4] = true;
+		INITIAL_GRID[anchorX + 5][anchorY + 4] = true;
+	'''
+	
+	/**
+	 * Private helper to set up the Heavyweight SpaceShip (HWSS).
+	 */
+	private def toLargeSpaceShipSetup(int anchorX, int anchorY) '''
+		final int anchorX = «anchorX»;
+		final int anchorY = «anchorY»;
+		
+		INITIAL_GRID[anchorX + 2][anchorY + 0] = true;
+		INITIAL_GRID[anchorX + 3][anchorY + 0] = true;
+		
+		INITIAL_GRID[anchorX + 0][anchorY + 1] = true;
+		INITIAL_GRID[anchorX + 5][anchorY + 1] = true;
+		
+		INITIAL_GRID[anchorX + 6][anchorY + 2] = true;
+
+		INITIAL_GRID[anchorX + 0][anchorY + 3] = true;
+		INITIAL_GRID[anchorX + 6][anchorY + 3] = true;
+		
+		INITIAL_GRID[anchorX + 1][anchorY + 4] = true;
+		INITIAL_GRID[anchorX + 2][anchorY + 4] = true;
+		INITIAL_GRID[anchorX + 3][anchorY + 4] = true;
+		INITIAL_GRID[anchorX + 4][anchorY + 4] = true;
+		INITIAL_GRID[anchorX + 5][anchorY + 4] = true;
+		INITIAL_GRID[anchorX + 6][anchorY + 4] = true;
+	'''
+	
+	/**
+	 * Generates code for the Gosper Glider Gun (36x9) pattern.
+	 */
+	def toGosperGunSetup(GosperGun gun) '''
+		// Pattern GosperGliderGun at («gun.anchor.x», «gun.anchor.y»)
+		{
+			final int anchorX = «gun.anchor.x»;
+			final int anchorY = «gun.anchor.y»;
+
+			// Left Block (2x2)
+			INITIAL_GRID[anchorX + 1][anchorY + 4] = true;
+			INITIAL_GRID[anchorX + 2][anchorY + 4] = true;
+			INITIAL_GRID[anchorX + 1][anchorY + 5] = true;
+			INITIAL_GRID[anchorX + 2][anchorY + 5] = true;
+
+			// Left Ship
+			INITIAL_GRID[anchorX + 11][anchorY + 4] = true;
+			INITIAL_GRID[anchorX + 11][anchorY + 5] = true;
+			INITIAL_GRID[anchorX + 11][anchorY + 6] = true;
+			INITIAL_GRID[anchorX + 12][anchorY + 3] = true;
+			INITIAL_GRID[anchorX + 12][anchorY + 7] = true;
+			INITIAL_GRID[anchorX + 13][anchorY + 2] = true;
+			INITIAL_GRID[anchorX + 13][anchorY + 8] = true;
+			INITIAL_GRID[anchorX + 14][anchorY + 2] = true;
+			INITIAL_GRID[anchorX + 14][anchorY + 8] = true;
+			INITIAL_GRID[anchorX + 15][anchorY + 5] = true;
+			INITIAL_GRID[anchorX + 16][anchorY + 3] = true;
+			INITIAL_GRID[anchorX + 16][anchorY + 7] = true;
+			INITIAL_GRID[anchorX + 17][anchorY + 4] = true;
+			INITIAL_GRID[anchorX + 17][anchorY + 5] = true;
+			INITIAL_GRID[anchorX + 17][anchorY + 6] = true;
+			INITIAL_GRID[anchorX + 18][anchorY + 5] = true;
+
+			// Right Ship
+			INITIAL_GRID[anchorX + 21][anchorY + 2] = true;
+			INITIAL_GRID[anchorX + 21][anchorY + 3] = true;
+			INITIAL_GRID[anchorX + 21][anchorY + 4] = true;
+			INITIAL_GRID[anchorX + 22][anchorY + 2] = true;
+			INITIAL_GRID[anchorX + 22][anchorY + 3] = true;
+			INITIAL_GRID[anchorX + 22][anchorY + 4] = true;
+			INITIAL_GRID[anchorX + 23][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 23][anchorY + 5] = true;
+			INITIAL_GRID[anchorX + 25][anchorY + 0] = true;
+			INITIAL_GRID[anchorX + 25][anchorY + 1] = true;
+			INITIAL_GRID[anchorX + 25][anchorY + 5] = true;
+			INITIAL_GRID[anchorX + 25][anchorY + 6] = true;
+			
+			// Right Block (2x2)
+			INITIAL_GRID[anchorX + 35][anchorY + 2] = true;
+			INITIAL_GRID[anchorX + 35][anchorY + 3] = true;
+			INITIAL_GRID[anchorX + 36][anchorY + 2] = true;
+			INITIAL_GRID[anchorX + 36][anchorY + 3] = true;
+		}
+	'''
 	/* =========================================================================================
      * Generates the Java code for defining all reusable patterns in a static Map.
      * This map will store the Live and Dead cell coordinates relative to the pattern's anchor (0,0).
@@ -471,9 +917,6 @@ class TaskDSLGenerator extends AbstractGenerator {
         }
     '''
     
-    
-    
-    
     def toApplyPatternMethod() '''
         private static void applyPattern(CustomPatternData data, int ox, int oy) {
             for (Point p : data.liveCells) {
@@ -495,5 +938,4 @@ class TaskDSLGenerator extends AbstractGenerator {
 	    if (patternData_«state.patternRef.name» != null) {
 	        applyPattern(patternData_«state.patternRef.name», «state.offsetX», «state.offsetY»);
 	    }
-	'''
 }
