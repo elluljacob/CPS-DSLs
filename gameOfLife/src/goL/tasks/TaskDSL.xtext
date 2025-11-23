@@ -118,7 +118,8 @@ FloatValue returns Expr:
 terminal FLOAT: ('0'..'9')+ '.' ('0'..'9')+;
 
 PatternDefinition:
-    CirclePattern | RectanglePattern | TrianglePattern;
+    CirclePattern | RectanglePattern | TrianglePattern | Block | BeeHive | Loaf | Boat | Tub 
+    | Blinker | Toad |  Beacon | Pulsar | Pentadecathlon |  Glider | SpaceShip | GosperGun | SimkinGun ;
     
 // Circle center: (c, r), radius: int, optional: modifier
 CirclePattern:
@@ -137,8 +138,36 @@ TrianglePattern:
     {TrianglePattern} 'Triangle' p1=LiveCell p2=LiveCell p3=LiveCell 
         (modifier=PatternModifier)? ('tolerance' tolerance=FLOAT)?;
 
+// --- Still Life ---
+// Requires one anchor point (top-left position)
+Block:              {Block} 'Block' anchor=LiveCell;
+BeeHive:            {BeeHive} 'BeeHive' anchor=LiveCell;
+Loaf:               {Loaf} 'Loaf' anchor=LiveCell;
+Boat:               {Boat} 'Boat' anchor=LiveCell;
+Tub:                {Tub} 'Tub' anchor=LiveCell;
+
+// --- Oscillators ---
+// Requires one anchor point (top-left position)
+Blinker:            {Blinker} 'Blinker' anchor=LiveCell;
+Toad:               {Toad} 'Toad' anchor=LiveCell;
+Beacon:             {Beacon} 'Beacon' anchor=LiveCell;
+Pulsar:             {Pulsar} 'Pulsar' anchor=LiveCell;
+Pentadecathlon:     {Pentadecathlon} 'Pentadecathlon' anchor=LiveCell;
+
+// --- Spaceships and Guns ---
+// Requires one anchor point (top-left position)
+Glider:             {Glider} 'Glider' size=SpaceShipSize anchor=LiveCell ;
+SpaceShip:          {SpaceShip} 'SpaceShip' anchor=LiveCell;
+GosperGun:          {GosperGun} 'GosperGun' anchor=LiveCell;
+SimkinGun:          {SimkinGun} 'SimkinGun' anchor=LiveCell;
+
+enum SpaceShipSize:
+    LIGHT = 'light' | MEDIUM = 'medium' | LARGE = 'large';
+    
 // Defines the optional modifier for all patterns
 enum PatternModifier:
     DEFAULT = 'DEFAULT' | FILL = 'fill' | ERASE = 'erase';
+    
+
     
 
