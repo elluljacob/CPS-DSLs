@@ -943,11 +943,12 @@ class TaskDSLGenerator extends AbstractGenerator {
         }
     '''
     def toNamedPatternPlacement(CustPatternState state) '''
-    
-	    CustomPatternData patternData_«state.patternRef.name» = CUSTOM_PATTERNS.get("«state.patternRef.name»"); 
-	    if (patternData_«state.patternRef.name» != null) {
-	        applyPattern(patternData_«state.patternRef.name», «state.offsetX», «state.offsetY»);
-	    }
+		{
+			CustomPatternData patternData_«state.patternRef.name» = CUSTOM_PATTERNS.get("«state.patternRef.name»"); 
+			if (patternData_«state.patternRef.name» != null) {
+			    applyPattern(patternData_«state.patternRef.name», «state.offsetX», «state.offsetY»);
+			}
+		}
 		
 	'''
 }
