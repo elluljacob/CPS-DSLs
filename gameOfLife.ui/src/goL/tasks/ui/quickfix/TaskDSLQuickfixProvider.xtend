@@ -26,7 +26,7 @@ class TaskDSLQuickfixProvider extends DefaultQuickfixProvider {
                 val root = cell.eResource().contents.head as goL.tasks.taskDSL.Model
                 val grid = root.grid
 
-                if (issue.data != null && !issue.data.isEmpty) {
+                if (issue.data !== null && !issue.data.isEmpty) {
                     // issue.getData() may contain strings if you passed data in validator
                 }
 
@@ -49,7 +49,7 @@ class TaskDSLQuickfixProvider extends DefaultQuickfixProvider {
 
     @Fix(TaskDSLValidator.UNKNOWN_VARIABLE)
     def fixUnknownVariable(Issue issue, IssueResolutionAcceptor acceptor) {
-        val badName = if (issue.data != null && issue.data.length > 0) issue.data.head else "x"
+        val badName = if (issue.data !== null && issue.data.length > 0) issue.data.head else "x"
         val allowed = TaskDSLValidator.VALID_VARIABLES
 
         for (option : allowed) {

@@ -9,8 +9,6 @@ import goL.tasks.taskDSL.SurvivalRule
 import goL.tasks.taskDSL.DeathRule
 import goL.tasks.taskDSL.Grid
 import goL.tasks.taskDSL.StaticState
-import goL.tasks.taskDSL.Grid
-import goL.tasks.taskDSL.FunctionState
 import goL.tasks.taskDSL.VariableRef
 import goL.tasks.taskDSL.Expr
 import goL.tasks.taskDSL.NumberLiteral

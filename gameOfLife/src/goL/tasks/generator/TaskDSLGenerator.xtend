@@ -9,12 +9,10 @@ import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import goL.tasks.taskDSL.Model
 import goL.tasks.taskDSL.Grid
-import goL.tasks.taskDSL.LiveCell
 import goL.tasks.taskDSL.Operator
 import goL.tasks.taskDSL.BirthRule
 import goL.tasks.taskDSL.SurvivalRule
 import goL.tasks.taskDSL.DeathRule
-import goL.tasks.taskDSL.InitialStateOption
 import goL.tasks.taskDSL.RandomState
 import goL.tasks.taskDSL.StaticState 
 
@@ -49,7 +47,6 @@ import goL.tasks.taskDSL.Toad
 import goL.tasks.taskDSL.Glider
 import goL.tasks.taskDSL.SpaceShip
 import goL.tasks.taskDSL.GosperGun
-import goL.tasks.taskDSL.CustomPattern
 import goL.tasks.taskDSL.CustPatternState
 import goL.tasks.taskDSL.StaticEraseState
 
@@ -336,11 +333,11 @@ class TaskDSLGenerator extends AbstractGenerator {
         «ELSEIF pattern instanceof Beacon» «pattern.toBeaconSetup»
         «ELSEIF pattern instanceof Pulsar» «pattern.toPulsarSetup»
         «ELSEIF pattern instanceof Pentadecathlon» «pattern.toPentadecathlonSetup»
- 
+
 	    «ELSEIF pattern instanceof Glider» «pattern.toGliderSetup»
 	    «ELSEIF pattern instanceof SpaceShip» «pattern.toSpaceShipSetup»
 	    «ELSEIF pattern instanceof GosperGun» «pattern.toGosperGunSetup»
- 
+
         «ENDIF»
 	'''
 	
@@ -354,7 +351,7 @@ class TaskDSLGenerator extends AbstractGenerator {
             final int cy = «circle.centerY»;
             final int r = «circle.radius»;
             final int rSquared = r * r;
-			final boolean shouldSet = «IF circle.modifier == PatternModifier.ERASE»false«ELSE»true«ENDIF»; // true for fill/default, false for erase
+            final boolean shouldSet = «IF circle.modifier == PatternModifier.ERASE»false«ELSE»true«ENDIF»; // true for fill/default, false for erase
             final boolean fillMode = «IF circle.modifier == PatternModifier.FILL || circle.modifier == PatternModifier.ERASE»true«ELSE»false«ENDIF»; // true for fill/erase, false for line drawing
             final double LINE_TOLERANCE_SQUARED = «IF circle.tolerance !== null »«circle.tolerance»«ELSE»10.0«ENDIF»;
 
@@ -430,7 +427,7 @@ class TaskDSLGenerator extends AbstractGenerator {
             
             final boolean shouldSet = «IF tri.modifier == PatternModifier.ERASE»false«ELSE»true«ENDIF»;
             final boolean fillMode = «IF tri.modifier == PatternModifier.FILL || tri.modifier == PatternModifier.ERASE»true«ELSE»false«ENDIF»;
-			
+
             // Precalculate denominator for Barycentric coordinates (Area * 2)
             final double area2 = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1);
             final double ABS_AREA_2 = Math.abs(area2);
