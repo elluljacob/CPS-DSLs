@@ -2,95 +2,178 @@ grammar goL.tasks.TaskDSL with org.eclipse.xtext.common.Terminals
 
 generate taskDSL "http://www.tasks.goL/TaskDSL"
 
+/* ============================================================================
+ * 							   MODEL DEFINITION
+ *            -----------------------------------------------------            
+ * This defines the overall structure of the file.
+ * It contains 4 main components:
+ * 		- The Experiment name
+ * 		- A list of custom pattern definitions
+ * 		- The Grid setup (size + initial state)
+ * 		- The Rules of the Game
+ * ============================================================================
+ */
 Model:
     'Experiment' name=ID ':'
-    (patterns += CustomPattern)*
-    grid = Grid
-    rules = Rules;
+    (patterns  += CustomPattern)*
+     grid 		= Grid
+     rules 		= Rules;
 
-// -----------------------------------------------------------------------------
-// GRID DEFINITION
-// -----------------------------------------------------------------------------
-Grid:
-    'Grid' ':'
+/* ============================================================================
+ * 							   GRID DEFINITION
+ *            -----------------------------------------------------            
+ * This describes how the grid is initially setup.
+ * It contains 2 main components
+ * 		- The Grid size defined in the form " 0 x 0 "
+ * 		- The Initial state defined by a list of elements.
+ * ============================================================================
+ */
+Grid: 'Grid' ':'
     'Size' 
     	sizeX=INT 
     	'x' 
     	sizeY=INT
     'InitialState' ':'
-	options += InitialStateOption+;
-	
+		options += InitialStateOption+;
+
+/* ============================================================================
+ * 						   INITIAL STATE DEFINITION
+ *            -----------------------------------------------------            
+ * The initial state is built using any combination of the elements below.
+ * You can use each element multiple times, in combination with others,
+ * and the order matters. Later entries overwrite earlier ones. For 
+ * example, if Static marks (0,0) as alive and Static Erase later marks (0,0) 
+ * as dead, the final state at that position will be dead.
+ * 		- Static		 : A static list of "alive" square positions
+ * 		- Static Erase	 : A static list of "dead"  square positions
+ * 		- Random 		 : Randomly assigns "alive" squares by percentage
+ * 		- Function		 : A simple function such as (c + sin(r)) with an
+ * 						   optional tolerance for line thickness
+ * 		- Pattern        : A predefined pattern placed on the grid
+ * 		- Custom Pattern : A user-defined pattern placed with an offset
+ * ============================================================================
+ */
+
 InitialStateOption:
     (
-        {StaticState} 		'Static' 		cells += LiveCell* 
+        {StaticState} 		'Static' 		cells      += LiveCell* 
     ) | (
-        {StaticEraseState} 	'StaticErase'   cells += DeadCell* 
+        {StaticEraseState} 	'StaticErase'   cells 	   += DeadCell* 
     ) | (
-        {RandomState} 		'Random' 		percentage=INT '%'
+        {RandomState} 		'Random' 		percentage	= INT '%'
     ) | (
-    	{FunctionState} 	'Function' 		function=Expr (tolerance=FLOAT)?
+    	{FunctionState} 	'Function' 		function 	= Expr (tolerance=FLOAT)?
     ) | (
-        {PatternState}  	'Pattern'   	pattern = PatternDefinition 
+        {PatternState}  	'Pattern'   	pattern 	= PatternDefinition 
     ) | (
-    	{CustPatternState} 	'PlacePattern' 	patternRef=[CustomPattern] 'at' '(' offsetX=INT ',' offsetY=INT ')'
+    	{CustPatternState} 	'PlacePattern' 	patternRef	= [CustomPattern] 'at' '(' offsetX=INT ',' offsetY=INT ')'
     )
     ;
-
+    
+/* ============================================================================
+ * 						   		CELL DEFINITIONS
+ *            -----------------------------------------------------            
+ * Simple definition for what an "alive" and "dead" cells are
+ * ============================================================================
+ */
 LiveCell:
     '(' x=INT ',' y=INT ')';
 
 DeadCell:
     '(' x=INT ',' y=INT ')';
     
-// -----------------------------------------------------------------------------
-// RULES DEFINITION
-// -----------------------------------------------------------------------------
+/* ============================================================================
+ * 						   		RULE DEFINITIONS
+ *            -----------------------------------------------------            
+ * This section defines how cells behave each generation.
+ * It contains three rule types:
+ * 		- Birth		: Conditions for dead cells becoming alive
+ * 		- Survival	: Conditions for keeping cells alive
+ * 		- Death		: Conditions for live cells becoming dead
+ * NOTE: Rule definitions are explicit to avoid parser confusion.
+ * ============================================================================
+ */
 Rules:
     'Rules' ':'
     birthRules 		+= BirthRule+
     survivalRules 	+= SurvivalRule+
     deathRules 		+= DeathRule+;
-
-// NOTE: Rule definitions are explicit to avoid parser confusion.
-
-// A dead cell becomes alive (birth)
+/* -------------------------------------------------------------------------
+ * Defines how "alive" neighbours are born
+ * ------------------------------------------------------------------------- */
 BirthRule:
     'Birth' 	'Neighbors' (operator=Operator count=INT);
-
+    
+/* -------------------------------------------------------------------------
+ * Defines how "alive" neighbours stay "alive"
+ * ------------------------------------------------------------------------- */
 SurvivalRule:
     'Survival' 	'Neighbors' (operator=Operator count=INT);
 
+/* -------------------------------------------------------------------------
+ * Defines how "alive" neighbours stay "alive"
+ * ------------------------------------------------------------------------- */
 DeathRule:
     'Death' 	'Neighbors' (operator=Operator count=INT);
 
-
-
-
-// Defines the operators for comparison: <, =, >
+/* -------------------------------------------------------------------------
+ * Defines the operators for comparison: <, =, >
+ * ------------------------------------------------------------------------- */
 enum Operator:
     LESS_THAN = '<' | EQUAL = '=' | GREATER_THAN = '>';
 
+/* ============================================================================
+ * 						   		EXPRESSION SYSTEM
+ *            -----------------------------------------------------            
+ * This defines arithmetic expressions for functions and logic.
+ * It supports:
+ * 		- Basic operations (+, -, *, /)
+ * 		- Integer and floating-point numbers
+ * 		- Variables and simple function calls
+ * 		- Bracketed sub-expressions
+ * References:
+ * https://medium.com/typefox/parsing-expressions-with-xtext-86fb5855d420
+ * https://eclipse.dev/Xtext/documentation/307_special_languages.html
+ * ============================================================================
+ */
 
-// -----------------------------------------------------------------------------
-// EXPRESSIONS
-// References:
-// https://medium.com/typefox/parsing-expressions-with-xtext-86fb5855d420
-// https://eclipse.dev/Xtext/documentation/307_special_languages.html
-// -----------------------------------------------------------------------------
 Expr returns Expr:
     AdditionExpr
 ;
 
+/* -------------------------------------------------------------------------
+ * Defines addition and subtraction operations the multiplication 
+ * expression is used for operator precedence
+ * ------------------------------------------------------------------------- */
 AdditionExpr returns Expr:
-    MultiplicationExpr (({Add.left=current} '+' right=MultiplicationExpr)
-                      | ({Sub.left=current} '-' right=MultiplicationExpr))*
+    MultiplicationExpr 
+    	(
+    		({Add.left=current} '+' right=MultiplicationExpr)
+        | 
+        	({Sub.left=current} '-' right=MultiplicationExpr)
+        )*
 ;
 
+/* -------------------------------------------------------------------------
+ * Defines the multiplication operators
+ * ------------------------------------------------------------------------- */
 MultiplicationExpr returns Expr:
-    PrimaryExpr (({Mul.left=current} '*' right=PrimaryExpr)
-                | ({Div.left=current} '/' right=PrimaryExpr))*
+    PrimaryExpr 
+    	( 
+    		({Mul.left=current} '*' right=PrimaryExpr)
+        | 
+        	({Div.left=current} '/' right=PrimaryExpr)
+    	)*
 ;
 
+/* -------------------------------------------------------------------------
+ * Defines the primary expressions, which are the basic building blocks
+ * of more complex expressions. These include:
+ *   - Literals (numbers)
+ *   - Variable references
+ *   - Function calls
+ *   - Parenthesised expressions
+ * ------------------------------------------------------------------------- */
 PrimaryExpr returns Expr:
       Literal
     | VariableRef
@@ -98,37 +181,66 @@ PrimaryExpr returns Expr:
     | ParenExpr
 ;
 
+/* -------------------------------------------------------------------------
+ * Defines a function call with a single argument
+ * ------------------------------------------------------------------------- */
 FunctionCall returns Expr:
     {FunctionCall} funcName=ID '(' argument=Expr ')'
 ;
 
+/* -------------------------------------------------------------------------
+ * Defines expressions enclosed in parentheses
+ * ------------------------------------------------------------------------- */
 ParenExpr returns Expr:
     {ParenExpr} '(' expr=Expr ')'
 ;
 
+/* -------------------------------------------------------------------------
+ * References a variable by its identifier
+ * ------------------------------------------------------------------------- */
 VariableRef returns Expr:
     {VariableRef} varName=ID
 ;
 
+/* -------------------------------------------------------------------------
+ * Defines literals: integer and floating-point numbers
+ * ------------------------------------------------------------------------- */
 Literal returns Expr:
       IntValue
     | FloatValue
 ;
 
+/* -------------------------------------------------------------------------
+ * Defines an integer literal
+ * ------------------------------------------------------------------------- */
 IntValue returns Expr:
     {NumberLiteral} value=INT
 ;
 
+/* -------------------------------------------------------------------------
+ * Defines a floating-point literal
+ * ------------------------------------------------------------------------- */
 FloatValue returns Expr:
 	{FloatLiteral} value=FLOAT
 ;
 
+/* -------------------------------------------------------------------------
+ * Terminal for floating-point numbers (e.g., 3.14, 0.001)
+ * ------------------------------------------------------------------------- */
 terminal FLOAT: ('0'..'9')+ '.' ('0'..'9')+;
 
-// -----------------------------------------------------------------------------
-// Patterns
-// A Set of Pre Defined patterns that the user can place
-// -----------------------------------------------------------------------------
+/* ============================================================================
+ * 						   		PATTERN DEFINITIONS
+ *            -----------------------------------------------------            
+ * This defines all built-in patterns that can be placed on the grid.
+ * It includes:
+ * 		- Geometric shapes (circle, rectangle, triangle)
+ * 		- Still lives that remain stable
+ * 		- Oscillators that repeat after n steps
+ * 		- Spaceships and guns with predefined structures
+ * 		- Optional modifiers and tolerances for shapes
+ * ============================================================================
+ */
 PatternDefinition:
     CirclePattern 	| RectanglePattern 	| TrianglePattern 	| Block 			| 
     BeeHive			| Loaf 				| Boat 				| Tub				| 
@@ -136,58 +248,98 @@ PatternDefinition:
     Pentadecathlon 	| Glider 			| SpaceShip 		| GosperGun 		| 
     CustomPattern ;
     
-// Circle center: (c, r), radius: int, optional: modifier
+/* -------------------------------------------------------------------------
+ * Defines a Circle pattern with a centre and radius.
+ * Optional parameters:
+ *   - modifier: specifies DEFAULT, fill, or erase behaviour
+ *   - tolerance: allows approximate matching with a floating-point value
+ * Example: Circle centre(5,10) radius 3 fill tolerance 0.1
+ * ------------------------------------------------------------------------- */
 CirclePattern:
-    {CirclePattern} 'Circle' 'center' '(' centerX=INT ',' centerY=INT ')' 'radius' radius=INT 
-        (modifier=PatternModifier)? ('tolerance' tolerance=FLOAT)?; // optionals
+    {CirclePattern} 
+    	'Circle' 'center' '(' centerX=INT ',' centerY=INT ')' 
+    	'radius' radius=INT 
+        	(modifier=PatternModifier)? ('tolerance' tolerance=FLOAT)?;
 
-// Point: (x, y) - uses LiveCell syntax for points
-// Note: Using four points for a rectangle is slightly redundant, usually two diagonal points suffice, 
-// but we follow the user request for four p1, p2, p3, p4.
+/* -------------------------------------------------------------------------
+ * Defines a Rectangle pattern using four points.
+ * Each point uses the LiveCell syntax.
+ * Note: Four points are used as requested, though two diagonal points 
+ *       are usually sufficient.
+ * Optional:
+ *   - modifier: specifies DEFAULT, fill, or erase behaviour
+ * ------------------------------------------------------------------------- */
 RectanglePattern:
-    {RectanglePattern} 'Rectangle' p1=LiveCell p2=LiveCell p3=LiveCell p4=LiveCell 
+    {RectanglePattern} 
+    	'Rectangle' p1=LiveCell p2=LiveCell p3=LiveCell p4=LiveCell 
         (modifier=PatternModifier)?;
 
-// Triangle uses three points
+/* -------------------------------------------------------------------------
+ * Defines a Triangle pattern using three points.
+ * Optional parameters:
+ *   - modifier: specifies DEFAULT, fill, or erase behaviour
+ *   - tolerance: allows approximate matching with a floating-point value
+ * ------------------------------------------------------------------------- */
 TrianglePattern:
     {TrianglePattern} 'Triangle' p1=LiveCell p2=LiveCell p3=LiveCell 
         (modifier=PatternModifier)? ('tolerance' tolerance=FLOAT)?;
 
-// --- Still Life ---
-// Requires one anchor point (top-left position)
-Block:              {Block} 'Block' anchor=LiveCell;
-BeeHive:            {BeeHive} 'BeeHive' anchor=LiveCell;
-Loaf:               {Loaf} 'Loaf' anchor=LiveCell;
-Boat:               {Boat} 'Boat' anchor=LiveCell;
-Tub:                {Tub} 'Tub' anchor=LiveCell;
+/* -------------------------------------------------------------------------
+ * Still Life patterns in Conway's Game of Life.
+ * Each pattern requires a single anchor point (top-left position).
+ * ------------------------------------------------------------------------- */
+Block:              {Block} 	'Block' 	anchor=LiveCell;
+BeeHive:            {BeeHive} 	'BeeHive' 	anchor=LiveCell;
+Loaf:               {Loaf} 		'Loaf' 		anchor=LiveCell;
+Boat:               {Boat} 		'Boat' 		anchor=LiveCell;
+Tub:                {Tub} 		'Tub' 		anchor=LiveCell;
 
-// --- Oscillators ---
-// Requires one anchor point (top-left position)
-Blinker:            {Blinker} 'Blinker' anchor=LiveCell;
-Toad:               {Toad} 'Toad' anchor=LiveCell;
-Beacon:             {Beacon} 'Beacon' anchor=LiveCell;
-Pulsar:             {Pulsar} 'Pulsar' anchor=LiveCell;
-Pentadecathlon:     {Pentadecathlon} 'Pentadecathlon' anchor=LiveCell;
+/* -------------------------------------------------------------------------
+ * Oscillator patterns in Conway's Game of Life.
+ * Each pattern requires a single anchor point (top-left position).
+ * ------------------------------------------------------------------------- */
+Blinker:            {Blinker} 		 'Blinker' 			anchor=LiveCell;
+Toad:               {Toad} 			 'Toad' 			anchor=LiveCell;
+Beacon:             {Beacon} 		 'Beacon' 			anchor=LiveCell;
+Pulsar:             {Pulsar} 		 'Pulsar' 			anchor=LiveCell;
+Pentadecathlon:     {Pentadecathlon} 'Pentadecathlon' 	anchor=LiveCell;
 
-// --- Spaceships and Guns ---
-// Requires one anchor point (top-left position)
-Glider:             {Glider} 'Glider' anchor=LiveCell ;
+/* -------------------------------------------------------------------------
+ * Spaceships and Guns in Conway's Game of Life.
+ * Each pattern requires a single anchor point (top-left position).
+ * Optional parameter for SpaceShip:
+ *   - size: can be LIGHT, MEDIUM, or LARGE
+ * ------------------------------------------------------------------------- */
+Glider:             {Glider} 	'Glider' 					   anchor=LiveCell ;
 SpaceShip:          {SpaceShip} 'SpaceShip' size=SpaceShipSize anchor=LiveCell;
-GosperGun:          {GosperGun} 'GosperGun' anchor=LiveCell;
+GosperGun:          {GosperGun} 'GosperGun' 				   anchor=LiveCell;
 
+/* -------------------------------------------------------------------------
+ * Enumerates the allowed sizes for spaceships.
+ * ------------------------------------------------------------------------- */
 enum SpaceShipSize:
     LIGHT = 'light' | MEDIUM = 'medium' | LARGE = 'large';
-    
-// Defines the optional modifier for all patterns
+
+/* -------------------------------------------------------------------------
+ * Enumerates optional modifiers for patterns.
+ *   - DEFAULT: no change
+ *   - FILL: fill the pattern
+ *   - ERASE: remove the pattern
+ * ------------------------------------------------------------------------- */
 enum PatternModifier:
     DEFAULT = 'DEFAULT' | FILL = 'fill' | ERASE = 'erase';
-    
 
 
-// -----------------------------------------------------------------------------
-// Custom Pattern
-// This is a customised pattern
-// -----------------------------------------------------------------------------
+
+/* ============================================================================
+ * 						   		CUSTOM PATTERN
+ *            -----------------------------------------------------            
+ * This defines a user-created pattern that can be reused.
+ * It contains:
+ * 		- A list of "alive" cell positions
+ * 		- An optional list of "dead" cell positions
+ * ============================================================================
+ */
 CustomPattern:
     'DefinePattern' name=ID ':'
     'LiveCells' 	cells 		+= LiveCell*
