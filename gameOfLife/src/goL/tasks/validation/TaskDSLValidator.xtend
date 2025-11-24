@@ -18,6 +18,8 @@ import goL.tasks.taskDSL.Mul
 import goL.tasks.taskDSL.Div
 import goL.tasks.taskDSL.FunctionCall
 import goL.tasks.taskDSL.ParenExpr
+import goL.tasks.taskDSL.StaticEraseState
+import goL.tasks.taskDSL.DeadCell
 
 /**
  * Custom validation rules for the Game of Life DSL.
@@ -25,7 +27,6 @@ import goL.tasks.taskDSL.ParenExpr
 class TaskDSLValidator extends AbstractTaskDSLValidator {
 	
 	// --- Rule 1 (Error): Checks if a LiveCell is placed outside the defined grid boundaries. ---
-	
 	public static val INVALID_CELL_COORDINATE = 'invalid_cell_coordinate'
 	
 	@Check
@@ -33,13 +34,13 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 	    val sizeX = grid.sizeX
 	    val sizeY = grid.sizeY
 	    for (option : grid.options) {
-		    // 1. Check if the initial state is static (i.e., not random)
+		    // Check if the initial state is static
 		    if (option instanceof StaticState) {
 		        
-		        // 2. Cast the stateOption to StaticState to access the 'cells' list
+		        // Cast the stateOption to StaticState to access the 'cells' list
 		        val staticState = option as StaticState
 		        
-		        // 3. Iterate over the cells contained within the StaticState
+		        // Iterate over the cells contained within the StaticState
 		        for (LiveCell cell : staticState.cells) {
 		            
 		            // Check Rule 1: LiveCell coordinates must be within grid bounds
@@ -63,12 +64,41 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 		            }
 		        }
 		    }
-		    // If it's RandomState, there are no individual cells to validate here.
+		    // Check if the initial state is staticErase 
+		    if (option instanceof StaticEraseState) {
+		        
+		        // Cast the stateOption to StaticState to access the 'cells' list
+		        val staticState = option as StaticEraseState
+		        
+		        // Iterate over the cells contained within the StaticState
+		        for (DeadCell cell : staticState.cells) {
+		            
+		            // Check Rule 1: LiveCell coordinates must be within grid bounds
+		            if (cell.x < 0 || cell.x >= sizeX) {
+		                // Issue error on the 'x' feature
+		                error(
+		                    'Cell X coordinate (' + cell.x + ') is outside the grid bounds [0, ' + (sizeX - 1) + '].',
+		                    cell,
+		                    TaskDSLPackage.Literals.LIVE_CELL__X,
+		                    INVALID_CELL_COORDINATE // Your custom error code
+		                )
+		            }
+		            if (cell.y < 0 || cell.y >= sizeY) {
+		                // Issue error on the 'y' feature
+		                error(
+		                    'Cell Y coordinate (' + cell.y + ') is outside the grid bounds [0, ' + (sizeY - 1) + '].',
+		                    cell,
+		                    TaskDSLPackage.Literals.LIVE_CELL__Y,
+		                    INVALID_CELL_COORDINATE
+		                )
+		            }
+		        }
+		    }
+		    // If it's any other state, there are no individual cells to validate.
 	  }
    }
 		
 	// --- Rule 2 (Error): Ensures the neighbor count in any rule is logically possible (between 0 and 8). ---
-	
 	public static val NEIGHBOR_COUNT_IMPOSSIBLE = 'neighbor_count_impossible'
 	
 	@Check
@@ -76,25 +106,25 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 	    val count = rule.count
 	    val operator = rule.operator
 	    
-	    if (count < 0) {
+	    if (count < 0) { // Error if less than 0
 	        error(
 	            'Neighbor count must be 0 or greater for Birth Rule.',
 	            rule,
-	            TaskDSLPackage.Literals.BIRTH_RULE__COUNT, // CORRECT LITERAL for BirthRule
+	            TaskDSLPackage.Literals.BIRTH_RULE__COUNT, 
 	            NEIGHBOR_COUNT_IMPOSSIBLE
 	        )
-	    } else if (count > 8 && (operator == Operator.EQUAL || operator == Operator.GREATER_THAN)) {
+	    } else if (count > 8 && (operator == Operator.EQUAL || operator == Operator.GREATER_THAN)) { // Error if greater than 8
 	        error(
 	            'Birth Rule count ' + operator.literal + ' ' + count + ' is impossible. A cell can only have up to 8 neighbors.',
 	            rule,
-	            TaskDSLPackage.Literals.BIRTH_RULE__COUNT, // CORRECT LITERAL
+	            TaskDSLPackage.Literals.BIRTH_RULE__COUNT, 
 	            NEIGHBOR_COUNT_IMPOSSIBLE
 	        )
 	    }
 	}
 	
 	@Check
-	def checkSurvivalRuleCount(SurvivalRule rule) {
+	def checkSurvivalRuleCount(SurvivalRule rule) { // Same as birth rule but for survival rules
 	    val count = rule.count
 	    val operator = rule.operator
 	    
@@ -102,14 +132,14 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 	        error(
 	            'Neighbor count must be 0 or greater for Survival Rule.',
 	            rule,
-	            TaskDSLPackage.Literals.SURVIVAL_RULE__COUNT, // CORRECT LITERAL for SurvivalRule
+	            TaskDSLPackage.Literals.SURVIVAL_RULE__COUNT, 
 	            NEIGHBOR_COUNT_IMPOSSIBLE
 	        )
 	    } else if (count > 8 && (operator == Operator.EQUAL || operator == Operator.GREATER_THAN)) {
 	        error(
 	            'Survival Rule count ' + operator.literal + ' ' + count + ' is impossible. A cell can only have up to 8 neighbors.',
 	            rule,
-	            TaskDSLPackage.Literals.SURVIVAL_RULE__COUNT, // CORRECT LITERAL
+	            TaskDSLPackage.Literals.SURVIVAL_RULE__COUNT, 
 	            NEIGHBOR_COUNT_IMPOSSIBLE
 	        )
 	    }
@@ -124,20 +154,20 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 	        error(
 	            'Neighbor count must be 0 or greater for Death Rule.',
 	            rule,
-	            TaskDSLPackage.Literals.DEATH_RULE__COUNT, // CORRECT LITERAL for DeathRule
+	            TaskDSLPackage.Literals.DEATH_RULE__COUNT, 
 	            NEIGHBOR_COUNT_IMPOSSIBLE
 	        )
 	    } else if (count > 8 && (operator == Operator.EQUAL || operator == Operator.GREATER_THAN)) {
 	        error(
 	            'Death Rule count ' + operator.literal + ' ' + count + ' is impossible. A cell can only have up to 8 neighbors.',
 	            rule,
-	            TaskDSLPackage.Literals.DEATH_RULE__COUNT, // CORRECT LITERAL
+	            TaskDSLPackage.Literals.DEATH_RULE__COUNT,
 	            NEIGHBOR_COUNT_IMPOSSIBLE
 	        )
 	    }
 	}
-	// --- Rule 3 (Warning): Warns about logically redundant or potentially confusing rules. ---
 	
+	// --- Rule 3 (Warning): Warns about logically redundant or potentially confusing rules. ---
 	public static val REDUNDANT_RULE = 'redundant_rule'
 	
 	@Check
@@ -174,11 +204,12 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 	    }
 	}
 	
+	// Same logic as before
 	@Check
 	def warnAboutRedundantSurvivalRule(SurvivalRule rule) {
 	    val count = rule.count
 	    val operator = rule.operator
-	    val literal = TaskDSLPackage.Literals.SURVIVAL_RULE__COUNT // Use the correct literal
+	    val literal = TaskDSLPackage.Literals.SURVIVAL_RULE__COUNT 
 	    
 	    if (operator == Operator.LESS_THAN && count > 8) {
 	        warning(
@@ -205,11 +236,12 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 	    }
 	}
 	
+	// Similar logic as before
 	@Check
 	def warnAboutRedundantDeathRule(DeathRule rule) {
 	    val count = rule.count
 	    val operator = rule.operator
-	    val literal = TaskDSLPackage.Literals.DEATH_RULE__COUNT // Use the correct literal
+	    val literal = TaskDSLPackage.Literals.DEATH_RULE__COUNT 
 	    
 	    if (operator == Operator.LESS_THAN && count > 8) {
 	        warning(
@@ -235,17 +267,14 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 	        )
 	    }
 	}
-	// ---------------------------
+	
 	//  Expression & identifier validation
-	// ---------------------------
-
 	public static val UNKNOWN_VARIABLE 	= 'unknown_variable'
 	public static val UNKNOWN_FUNCTION 	= 'unknown_function'
 	public static val VALID_VARIABLES 	= #["c","r","GRID_WIDTH","GRID_HEIGHT"]
 	public static val VALID_FUNCTIONS 	= #["sin","cos","tan","sqrt","abs"]
-	/**
-	 * Validate a VariableRef node: only allow c, r, GRID_WIDTH, GRID_HEIGHT.
-	 */
+	
+	// Validate a VariableRef node: only allow c, r, GRID_WIDTH, GRID_HEIGHT.
 	@Check
 	def checkVariableRef(VariableRef varRef) {
 	    val name = varRef.varName
@@ -259,9 +288,7 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 	    }
 	}
 	
-	/**
-	 * Validate a FunctionCall node: only allow sin, cos, tan, sqrt, abs.
-	 */
+	// Validate a FunctionCall node: only allow sin, cos, tan, sqrt, abs.
 	@Check
 	def checkFunctionCall(FunctionCall fc) {
 	    val fname = fc.funcName
@@ -276,17 +303,17 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 	}
 	
 	/**
-	 * Helper that converts expressions to Java strings — used by other code.
-	 * It also enforces the same identifier/function restrictions (safe-guard).
-	 * If an unknown identifier/function is found it throws IllegalArgumentException.
+	 * Utility helper that converts expressions to Java strings (used by other code)
+	 * Enforces the same identifier/function restrictions
+	 * If an unknown identifier/function is found it throws IllegalArgumentException
 	 */
 	def String exprToJava(Expr expr) {
 	
-	    // ----- Literals -----
+	    // Literals 
 	    if (expr instanceof NumberLiteral) {
 	        return (expr as NumberLiteral).value.toString
 	
-	    // ----- Variables (c, r, GRID_WIDTH, GRID_HEIGHT) -----
+	    // Variables (c, r, GRID_WIDTH, GRID_HEIGHT)
 	    } else if (expr instanceof VariableRef) {
 	        val v = (expr as VariableRef).varName
 	        if (VALID_VARIABLES.contains(v)) {
@@ -296,7 +323,7 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 	            throw new IllegalArgumentException("Unknown identifier: " + v + ". Allowed: " + VALID_VARIABLES.join(", "))
 	        }
 	
-	    // ----- Binary operations -----
+	    // Binary operations (+, -, *, /)
 	    } else if (expr instanceof Add) {
 	        val e = expr as Add
 	        return "(" + exprToJava(e.left) + " + " + exprToJava(e.right) + ")"
@@ -313,7 +340,7 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 	        val e = expr as Div
 	        return "(" + exprToJava(e.left) + " / " + exprToJava(e.right) + ")"
 	
-	    // ----- Function calls -----
+	    // Function calls (cos, sin, tan, sqrt, abs)
 	    } else if (expr instanceof FunctionCall) {
 	        val fc = expr as FunctionCall
 	        val fname = fc.funcName
@@ -322,7 +349,8 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 	        if (!VALID_FUNCTIONS.contains(fname)) {
 	            throw new IllegalArgumentException("Unknown function: " + fname + ". Allowed: " + VALID_FUNCTIONS.join(", "))
 	        }
-	
+			
+		   // Map DSL function names to the correct Java Math library calls
 	       switch (fname) {
 		    case "sin":  return "Math.sin("  + arg + ")"
 		    case "cos":  return "Math.cos("  + arg + ")"
@@ -333,11 +361,11 @@ class TaskDSLValidator extends AbstractTaskDSLValidator {
 		        "Unknown function: " + fname + ". Allowed: " + VALID_FUNCTIONS.join(', ')
 		    )
 		}
-	    // ----- Parentheses -----
+	    // Parentheses
 	    } else if (expr instanceof ParenExpr) {
 	        return "(" + exprToJava((expr as ParenExpr).expr) + ")"
 	
-	    // ----- Fallback -----
+	    // Fallback
 	    } else {
 	        throw new IllegalStateException("Unhandled expr type: " + expr.class.name)
 	    }
