@@ -64,6 +64,12 @@ class TaskDSLGenerator extends AbstractGenerator {
 		// It is important that this path reflects the package structure!
 		fsa.generateFile("GameOfLife/RulesOfLife.java", model.toJavaCode)
 	}
+	/* ============================================================================
+	 * 						   		EXPRESSION SYSTEM
+	 *            -----------------------------------------------------            
+	 * Converts an expression into string to generate an expression in Java
+	 * ============================================================================
+	 */
 	def String exprToJava(Expr expr) {
 	    if (expr instanceof NumberLiteral) {
 	        return (expr as NumberLiteral).value.toString
@@ -100,8 +106,15 @@ class TaskDSLGenerator extends AbstractGenerator {
 
 
 	
-	/**
-	 * Main dispatch method that generates the complete Java class.
+	/* ============================================================================
+	 * 						   		MODEL TO JAVA DISPATCH
+	 *            -----------------------------------------------------            
+	 * Converts the DSL Model object into complete Java source code for RulesOfLife.java.
+	 * It handles:
+	 * 		- Grid dimensions and initial live cells
+	 * 		- Evolution rules: Birth, Survival, Death
+	 * 		- Predefined patterns and custom patterns
+	 * ============================================================================
 	 */
 	def toJavaCode(Model model) '''
 		// This file was automatically generated from the DSL instance: «model.name»
@@ -202,8 +215,16 @@ class TaskDSLGenerator extends AbstractGenerator {
 	'''
 	
 	
-	/**
-	 * Generates the Java code for initializing the live cells in the static block.
+	/* ============================================================================
+ 	 * 						   		GRID INITIALISATION
+	 *            -----------------------------------------------------            
+	 * Generates Java code to initialise the grid's live cells.
+	 * Handles:
+	 * 		- Random cell population
+	 * 		- Static cell placement and erasure
+	 * 		- Function-based initialisations (curves, lines)
+	 * 		- Pattern-based initialisations
+	 * ============================================================================
 	 */
 	def toInitialCellSetup(Grid grid) '''
 	  «FOR option : grid.options»
@@ -272,10 +293,12 @@ class TaskDSLGenerator extends AbstractGenerator {
 	  «ENDFOR»
 	'''
 	
-	/**
-	 * Generates the Java 'if' conditions for the evolution rules.
-	 * This helper method takes a list of rules (Birth, Survival, or Death) and generates
-	 * the corresponding 'if' blocks, using explicit casting to resolve type dispatch issues.
+	/* ============================================================================
+	 * 						   		RULE CONDITIONS GENERATION
+	 *            -----------------------------------------------------            
+	 * Generates Java 'if' conditions for Birth, Survival, and Death rules.
+	 * Each rule type is converted to a liveNeighbors check using the correct operator.
+	 * ============================================================================
 	 */
 	def toConditionBlock(Iterable<?> rules, String ruleType) '''
 		«val conditions = switch ruleType {
@@ -291,8 +314,10 @@ class TaskDSLGenerator extends AbstractGenerator {
 		}
 	'''
 	
-	/**
-	 * Dispatches to the specific rule type to generate the single 'liveNeighbors' condition.
+	/* ============================================================================
+	 * Dispatches to the specific rule type to generate the single 
+	 * 'liveNeighbors' condition.
+	 * ============================================================================
 	 */
 	def toConditionString(BirthRule rule) {
 		'liveNeighbors ' + rule.operator.toSymbol + ' ' + rule.count
@@ -306,8 +331,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 		'liveNeighbors ' + rule.operator.toSymbol + ' ' + rule.count
 	}
 
-	/**
+	/* ============================================================================
 	 * Maps the DSL's Operator Enum to the Java Symbol.
+	 * ============================================================================
 	 */
 	def toSymbol(Operator operator) {
 		switch operator {
@@ -316,8 +342,19 @@ class TaskDSLGenerator extends AbstractGenerator {
 			case Operator.GREATER_THAN: '>'
 		}
 	}
-
-	def toPatternSetup(PatternDefinition pattern) '''
+	/* ============================================================================
+	 * 						   		PATTERN INITIALIZATION
+	 *            -----------------------------------------------------            
+	 * Generates Java code for applying predefined geometric or Game of Life patterns.
+	 * Supports:
+	 * 		- Geometric		: Circle, Rectangle, Triangle
+	 * 		- Classic GoL	: Block, BeeHive, Loaf, Boat, Tub
+	 * 		- Oscillators	: Blinker, Toad, Beacon, Pulsar, Pentadecathlon
+	 * 		- Spaceships	: Glider, LWSS, MWSS, HWSS
+	 * 		- Gosper Glider Gun
+	 * ============================================================================
+	 */
+		def toPatternSetup(PatternDefinition pattern) '''
         «IF pattern instanceof CirclePattern» «pattern.toCircleSetup»
         «ELSEIF pattern instanceof RectanglePattern» «pattern.toRectangleSetup»
         «ELSEIF pattern instanceof TrianglePattern» «pattern.toTriangleSetup»
@@ -341,8 +378,9 @@ class TaskDSLGenerator extends AbstractGenerator {
         «ENDIF»
 	'''
 	
-	/**
+	/* ============================================================================
 	 * Generates code for the Circle Pattern.
+	 * ============================================================================
 	 */
 	def toCircleSetup(CirclePattern circle) '''
         // Circle Pattern: center(«circle.centerX», «circle.centerY»), radius «circle.radius»
@@ -376,11 +414,13 @@ class TaskDSLGenerator extends AbstractGenerator {
         }
 	'''
 
-	/**
+	/* ============================================================================
 	 * Generates code for the Rectangle Pattern.
 	 * It calculates the bounding box and iterates over it.
 	 * NOTE: Assumes p1 and p3 are diagonally opposite for filling logic, 
-	 * but uses all four for robustness. It uses the min/max of all X/Y coordinates to define the bounding box.
+	 * but uses all four for robustness. It uses the min/max of all X/Y 
+	 * coordinates to define the bounding box.
+	 * ============================================================================
 	 */
 	def toRectangleSetup(RectanglePattern rect) '''
         // Rectangle Pattern: p1(«rect.p1.x», «rect.p1.y»), p2(...), etc.
@@ -415,8 +455,10 @@ class TaskDSLGenerator extends AbstractGenerator {
         }
 	'''
 	
-	/**
-	 * Generates code for the Triangle Pattern using the Barycentric coordinate method for filling.
+	/* ============================================================================
+	 * Generates code for the Triangle Pattern using the Barycentric 
+	 * coordinate method for filling.
+	 * ============================================================================
 	 */
 	def toTriangleSetup(TrianglePattern tri) '''
         // Triangle Pattern: p1(«tri.p1.x», «tri.p1.y»), p2(«tri.p2.x», «tri.p2.y»), p3(«tri.p3.x», «tri.p3.y»)
@@ -468,8 +510,9 @@ class TaskDSLGenerator extends AbstractGenerator {
         }
 	'''
 	
-	/**
+	/* ============================================================================
 	 * Generates code for the Block (2x2) pattern.
+	 * ============================================================================
 	 */
 	def toBlockSetup(Block block) '''
 		// Pattern Block at (block.anchor.x, block.anchor.y)
@@ -485,8 +528,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 		}
 	'''
 
-	/**
+	/* ============================================================================
 	 * Generates code for the BeeHive (4x3) pattern.
+	 * ============================================================================
 	 */
 	def toBeeHiveSetup(BeeHive beehive) '''
 		// Pattern BeeHive at (beehive.anchor.x, beehive.anchor.y)
@@ -504,8 +548,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 		}
 	'''
 
-	/**
+	/* ============================================================================
 	 * Generates code for the Loaf (4x4) pattern.
+	 * ============================================================================
 	 */
 	def toLoafSetup(Loaf loaf) '''
 		// Pattern Loaf at (loaf.anchor.x, loaf.anchor.y)
@@ -524,8 +569,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 		}
 	'''
 
-	/**
+	/* ============================================================================
 	 * Generates code for the Boat (3x3) pattern.
+	 * ============================================================================
 	 */
 	def toBoatSetup(Boat boat) '''
 		// Pattern Boat at (boat.anchor.x, boat.anchor.y)
@@ -542,8 +588,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 		}
 	'''
 
-	/**
+	/* ============================================================================
 	 * Generates code for the Tub (3x3) pattern.
+	 * ============================================================================
 	 */
 	def toTubSetup(Tub tub) '''
 		// Pattern Tub at (tub.anchor.x, tub.anchor.y)
@@ -559,8 +606,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 		}
 	'''
 	
-	/**
+	/* ============================================================================
 	 * Generates code for the Blinker (1x3) pattern.
+	 * ============================================================================
 	 */
 	def toBlinkerSetup(Blinker blinker) '''
 		// Pattern Blinker at (blinker.anchor.x, blinker.anchor.y)
@@ -576,8 +624,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 	'''
 	
 	
-/**
+	/* ============================================================================
 	 * Generates code for the Toad (4x2) pattern.
+	 * ============================================================================
 	 */
 	def toToadSetup(Toad toad) '''
 		// Pattern Toad at («toad.anchor.x», «toad.anchor.y»)
@@ -597,8 +646,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 		}
 	'''
 	
-	/**
+	/* ============================================================================
 	 * Generates code for the Beacon (4x4) pattern.
+	 * ============================================================================
 	 */
 	def toBeaconSetup(Beacon beacon) '''
 		// Pattern Beacon at («beacon.anchor.x», «beacon.anchor.y»)
@@ -618,9 +668,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 		}
 	'''
 	
-/**
+	/* ============================================================================
 	 * Generates code for the Pulsar (13x13) pattern, Period 3.
-	 * 
+	 * ============================================================================
 	 */
 	def toPulsarSetup(Pulsar pulsar) '''
 		// Pattern Pulsar at («pulsar.anchor.x», «pulsar.anchor.y») (13x13 Bounding Box)
@@ -688,9 +738,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 		}
 	'''
 	
-	/**
+	/* ============================================================================
 	 * Generates code for the Pentadecathlon (10x3) pattern, Period 15.
-	 * 
+	 * ============================================================================
 	 */
 	def toPentadecathlonSetup(Pentadecathlon pd) '''
 		// Pattern Pentadecathlon at («pd.anchor.x», «pd.anchor.y») (10x3 Bounding Box)
@@ -726,9 +776,10 @@ class TaskDSLGenerator extends AbstractGenerator {
 		}
 	'''
 	
-	/**
+	/* ============================================================================
 	 * Generates code for the Glider (3x3) pattern.
 	 * Moves diagonally (1, 1) every 4 generations.
+	 * ============================================================================
 	 */
 	def toGliderSetup(Glider glider) '''
 		// Pattern Glider at («glider.anchor.x», «glider.anchor.y»)
@@ -744,8 +795,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 		}
 	'''
 	
-	/**
+	/* ============================================================================
 	 * Generates code for the Lightweight, Mediumweight, and Heavyweight SpaceShips.
+	 * ============================================================================
 	 */
 	def toSpaceShipSetup(SpaceShip spaceShip) '''
 		// Pattern SpaceShip («spaceShip.size») at («spaceShip.anchor.x», «spaceShip.anchor.y»)
@@ -760,8 +812,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 		}
 	'''
 	
-	/**
+	/* ============================================================================
 	 * Private helper to set up the Lightweight SpaceShip (LWSS).
+	 * ============================================================================
 	 */
 	private def toLightSpaceShipSetup(int anchorX, int anchorY) '''
 		final int anchorX = «anchorX»;
@@ -781,8 +834,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 		INITIAL_GRID[anchorX + 3][anchorY + 3] = true;
 	'''
 	
-	/**
+	/* ============================================================================
 	 * Private helper to set up the Mediumweight SpaceShip (MWSS).
+	 * ============================================================================
 	 */
 	private def toMediumSpaceShipSetup(int anchorX, int anchorY) '''
 		final int anchorX = «anchorX»;
@@ -805,8 +859,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 		INITIAL_GRID[anchorX + 5][anchorY + 4] = true;
 	'''
 	
-	/**
+	/* ============================================================================
 	 * Private helper to set up the Heavyweight SpaceShip (HWSS).
+	 * ============================================================================
 	 */
 	private def toLargeSpaceShipSetup(int anchorX, int anchorY) '''
 		final int anchorX = «anchorX»;
@@ -831,8 +886,9 @@ class TaskDSLGenerator extends AbstractGenerator {
 		INITIAL_GRID[anchorX + 6][anchorY + 4] = true;
 	'''
 	
-	/**
+	/*============================================================================
 	 * Generates code for the Gosper Glider Gun (36x9) pattern.
+	 * ============================================================================
 	 */
 	def toGosperGunSetup(GosperGun gun) '''
 		// Pattern GosperGliderGun at («gun.anchor.x», «gun.anchor.y»)
@@ -885,11 +941,15 @@ class TaskDSLGenerator extends AbstractGenerator {
 			INITIAL_GRID[anchorX + 36][anchorY + 3] = true;
 		}
 	'''
-	/* =========================================================================================
-     * Generates the Java code for defining all reusable patterns in a static Map.
-     * This map will store the Live and Dead cell coordinates relative to the pattern's anchor (0,0).
-     * =========================================================================================
-     */
+	/* ============================================================================
+	 * 						   		CUSTOM PATTERN MANAGEMENT
+	 *            -----------------------------------------------------            
+	 * Defines reusable custom patterns with:
+	 * 		- Live and dead cell coordinates
+	 * 		- Static map storage for pattern references
+	 * 		- Apply method for offsets in the grid
+	 * ============================================================================
+	 */
      def toCustomPatternDefinitions(Model model) '''
         // Helper type stored inside RulesOfLife
         public static final class CustomPatternData {
@@ -922,7 +982,16 @@ class TaskDSLGenerator extends AbstractGenerator {
             «ENDFOR»
         }
     '''
-    
+    /* ============================================================================
+	 * 						   		APPLY CUSTOM PATTERN
+	 *            -----------------------------------------------------            
+	 * Applies a CustomPatternData instance to the INITIAL_GRID at the given offset.
+	 * It updates:
+	 * 		- liveCells: sets them to true
+	 * 		- deadCells: sets them to false
+	 * Boundary checks ensure cells remain inside the grid.
+	 * ============================================================================
+	 */
     def toApplyPatternMethod() '''
         private static void applyPattern(CustomPatternData data, int ox, int oy) {
             for (Point p : data.liveCells) {
@@ -939,6 +1008,14 @@ class TaskDSLGenerator extends AbstractGenerator {
             }
         }
     '''
+    /* ============================================================================
+	 * 						   		PLACE NAMED PATTERN
+	 *            -----------------------------------------------------            
+	 * Retrieves a named pattern from CUSTOM_PATTERNS and applies it at the 
+	 * specified offset.
+	 * Checks for null to avoid missing pattern references.
+	 * ============================================================================
+	 */
     def toNamedPatternPlacement(CustPatternState state) '''
 		{
 			CustomPatternData patternData_«state.patternRef.name» = CUSTOM_PATTERNS.get("«state.patternRef.name»"); 
